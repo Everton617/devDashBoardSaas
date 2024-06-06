@@ -1,6 +1,6 @@
 const theadClass =
   'bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400';
-const trHeadClass = 'hover:bg-gray-50';
+const trHeadClass = 'hover:bg-gray-400 dark:hover:bg-gray-800';
 const thClass = 'px-6 py-3';
 
 export const TableHeader = ({ cols }: { cols: string[] }) => {

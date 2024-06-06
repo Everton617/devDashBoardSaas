@@ -53,23 +53,25 @@ const Teams = () => {
         <div className="flex justify-between items-center">
           <div className="space-y-3">
             <h2 className="text-xl font-medium leading-none tracking-tight">
-              {t('all-teams')}
+              {t('Todos os Times')}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {t('team-listed')}
             </p>
           </div>
           <Button
-            color="primary"
+            
+            color="error"
             size="md"
+            style={{ color: 'white' }}
             onClick={() => setCreateTeamVisible(!createTeamVisible)}
           >
-            {t('create-team')}
+            {t('Criar Time')}
           </Button>
         </div>
 
         <Table
-          cols={[t('name'), t('members'), t('created-at'), t('actions')]}
+          cols={[t('nome'), t('membros'), t('criado em'), t('ações')]}
           body={
             teams
               ? teams.map((team) => {
