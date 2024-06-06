@@ -29,6 +29,12 @@ const UserNavigation = ({ activePathname }: NavigationProps) => {
       icon: ShieldCheckIcon,
       active: activePathname === '/settings/security',
     },
+    {
+      name: t('test'),
+      href: '/test',
+      icon: ShieldCheckIcon,
+      active: activePathname === '/test',
+    },
   ];
 
   return <NavigationItems menus={menus} />;

@@ -180,7 +180,7 @@ const Login: NextPageWithLayout<
                 fullWidth
                 size="md"
               >
-                {t('Conectar')}
+                {t('Conectar-se')}
               </Button>
               <AgreeMessage text={t('sign-in')} />
             </div>

@@ -114,7 +114,7 @@ const Join = ({ recaptchaSiteKey }: JoinProps) => {
         <div className="relative flex">
           <InputWithLabel
             type={isPasswordVisible ? 'text' : 'password'}
-            label={t('naãoasdSenha')}
+            label={t('Senha')}
             name="password"
             placeholder={t('Senha')}
             value={formik.values.password}
