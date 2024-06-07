@@ -24,12 +24,6 @@ const UserNavigation = ({ activePathname }: NavigationProps) => {
       active: activePathname === '/settings/account',
     },
     {
-      name: t('test'),
-      href: '/test',
-      icon: UserCircleIcon,
-      active: activePathname === '/test',
-    },
-    {
       name: t('security'),
       href: '/settings/security',
       icon: ShieldCheckIcon,
