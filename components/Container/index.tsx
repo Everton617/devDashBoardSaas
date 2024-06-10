@@ -3,6 +3,7 @@ import ContainerProps from './container.type';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
+import TrashIcon from '../Item/trashicon';
 import { Button } from '../Button';
 
 const Container = ({
@@ -34,7 +35,7 @@ const Container = ({
         transform: CSS.Translate.toString(transform),
       }}
       className={clsx(
-        'w-full h-full p-4 bg-gray-50 rounded-xl flex flex-col gap-y-4',
+        'w-full h-full p-4 bg-red-50 rounded-xl flex flex-col gap-y-4',
         isDragging && 'opacity-50',
       )}
     >
@@ -47,13 +48,14 @@ const Container = ({
           className="border p-2 text-xs rounded-xl shadow-lg hover:shadow-xl"
           {...listeners}
         >
-          Drag Handle
+          Mover Pedido
+          
         </button>
       </div>
 
       {children}
       <Button variant="ghost" onClick={onAddItem}>
-        Add Item
+        Adicionar Pedido
       </Button>
     </div>
   );

@@ -37,7 +37,10 @@ type DNDType = {
   title: string;
   items: {
     id: UniqueIdentifier;
-    title: string;
+    pedido: string;
+    status: string;
+    horario: string;
+    entregador: string;
   }[];
 };
 
@@ -50,14 +53,20 @@ export default function Home() {
     },
     {
       id: `container-${uuidv4()}`,
-      title: 'Container 2',
+      title: 'Em Processo',
       items: [],
     },
     {
       id: `container-${uuidv4()}`,
-      title: 'Container 3',
+      title: 'Saiu para entrega',
       items: [],
     },
+    {
+      id: `container-${uuidv4()}`,
+      title: 'Concluído',
+      items: [],
+    },
+
   ]);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [currentContainerId, setCurrentContainerId] =
@@ -68,19 +77,36 @@ export default function Home() {
   const [Status, setStatus] = useState('');
   const [Horario, setHorario] = useState('');
   const [Entregador, setEntregador] = useState('');
+
   const [showAddContainerModal, setShowAddContainerModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+
+  const onAddContainer = () => {
+    if (!containerName) return;
+    const id = `container-${uuidv4()}`;
+    setContainers([
+      ...containers,
+      {
+        id,
+        title: containerName,
+        items: [],
+      },
+    ]);
+    setContainerName('');
+    setShowAddContainerModal(false);
+  };
+
   const onAddItem = () => {
-    if (!Pedido || !Status || !Horario || !Entregador) return;
+    if (!Pedido) return;
     const id = `item-${uuidv4()}`;
     const container = containers.find((item) => item.id === currentContainerId);
     if (!container) return;
     container.items.push({
       id,
-    title: Pedido,
-    status: Status,
-    horario: Horario,
-    entregador: Entregador,
+      pedido: Pedido,
+      status: Status,
+      horario: Horario ,
+      entregador: Entregador,
     });
     setContainers([...containers]);
     setPedido('');
@@ -107,7 +133,7 @@ export default function Home() {
     if (!container) return '';
     const item = container.items.find((item) => item.id === id);
     if (!item) return '';
-    return item.title;
+    return item.pedido;
   };
 
   const findContainerTitle = (id: UniqueIdentifier | undefined) => {
@@ -350,14 +376,14 @@ export default function Home() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl py-10">
+    <div className="mx-auto max-w-9xl py-10 ">
       {/* Add Container Modal */}
       <Modal
         showModal={showAddContainerModal}
         setShowModal={setShowAddContainerModal}
       >
-        <div className="flex flex-col w-full items-start gap-y-4">
-          <h1 className="text-gray-800 text-3xl font-bold">Add Container</h1>
+        <div className="flex flex-col w-full items-start gap-y-4 ">
+          <h1 className="text-gray-800 text-3xl font-bold">Adicionar Pedido</h1>
           <Input
             type="text"
             placeholder="Container Title"
@@ -365,7 +391,7 @@ export default function Home() {
             value={containerName}
             onChange={(e) => setContainerName(e.target.value)}
           />
-          <Button onClick={onAddItem}>Adicionar Pedido</Button>
+          <Button onClick={onAddContainer}>Adicionar Pedido</Button>
         </div>
       </Modal>
       {/* Add Item Modal */}
@@ -380,7 +406,7 @@ export default function Home() {
             onChange={(e) => setPedido(e.target.value)}
           />
           <Input
-            type="text"
+            type="Status"
             placeholder="Status"
             name="status"
             value={Status}
@@ -404,13 +430,13 @@ export default function Home() {
         </div>
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
-        <h1 className="text-gray-800 text-3xl font-bold">Dnd-kit Guide</h1>
+        <h1 className="text-gray-800 text-3xl font-bold">Kanban Board</h1>
         <Button onClick={() => setShowAddContainerModal(true)}>
-          Add Container
+          Adicionar Pedido
         </Button>
       </div>
       <div className="mt-10">
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-4 gap-6">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
@@ -432,7 +458,14 @@ export default function Home() {
                   <SortableContext items={container.items.map((i) => i.id)}>
                     <div className="flex items-start flex-col gap-y-4">
                       {container.items.map((i) => (
-                        <Items title={i.title} id={i.id} key={i.id} />
+                        <Items 
+                        key={i.id} 
+                        id={i.id}
+                        pedido={i.pedido}
+                        status={i.status} 
+                        horario={i.horario} 
+                        entregador={i.entregador} 
+                        />
                       ))}
                     </div>
                   </SortableContext>

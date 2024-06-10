@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import React from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
+import TrashIcon from './trashicon';
 
 
 type ItemsType = {
@@ -44,18 +45,13 @@ const Items = ({ id, pedido, status, horario, entregador }: ItemsType) => {
       )}
     >
       <div className="flex items-center justify-between ">
-      <div className='flex flex-col'>
+      <div className='flex flex-col' {...listeners}>
         <div className='h-10'>Pedido:{pedido}</div>
         <div className='h-10'>Status:{status}</div>
         <div className='h-10'>Horário:{horario}</div>
         <div className='h-10'>Entregador:{entregador}</div>
       </div>
-        <button
-          className="border p-2 text-xs rounded-xl shadow-lg hover:shadow-xl"
-          {...listeners}
-        >
-          Mover Pedido
-        </button>
+      <TrashIcon />
       </div>
     </div>
   );
