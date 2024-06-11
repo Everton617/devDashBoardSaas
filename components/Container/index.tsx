@@ -42,17 +42,17 @@ const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex
   ];
 
   const iconColors = [
-    'text-red-400',
-    'text-sky-500',
-    'text-teal-400',
-    'text-yellow-400',
+    'text-red-400 hover:text-red-900',
+    'text-sky-500 hover:text-sky-900',
+    'text-teal-400 hover:text-teal-900',
+    'text-yellow-400 hover:text-yellow-900',
   ];
 
   const buttonColors = [
-    'bg-red-400',
-    'bg-sky-500',
-    'bg-teal-400',
-    'bg-yellow-400',
+    'bg-red-400 hover:bg-red-500',
+    'bg-sky-500 hover:bg-sky-600',
+    'bg-teal-400 hover:bg-teal-500',
+    'bg-yellow-400 hover:bg-yellow-500',
   ];
 
   const containerColor = containerColors[containerIndex % containerColors.length];

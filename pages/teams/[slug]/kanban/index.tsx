@@ -485,7 +485,7 @@ export default function Home() {
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">Kanban Board</h1>
-        <Button className='bg-red' onClick={() => setShowAddContainerModal(true)}>
+        <Button onClick={() => setShowAddContainerModal(true)}>
           Adicionar Pedido
         </Button>
       </div>
