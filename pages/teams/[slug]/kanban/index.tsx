@@ -78,6 +78,12 @@ export default function Home() {
   const [Horario, setHorario] = useState('');
   const [Entregador, setEntregador] = useState('');
 
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+  const [showTitleModal, setShowTitleModal] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+
+  const [itemIdToDelete, setItemIdToDelete] = useState<UniqueIdentifier | null>(null);
   const [showAddContainerModal, setShowAddContainerModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
 
@@ -116,6 +122,54 @@ export default function Home() {
     setShowAddItemModal(false);
   };
 
+  const handleDeletePedido = (id: UniqueIdentifier) => {
+    setItemIdToDelete(id); // Definir o item a ser excluído
+    setShowDeleteConfirmation(true); // Mostrar o modal de confirmação
+  };
+  
+  const handleConfirmDeleteItem = () => {
+    if (itemIdToDelete) {
+      setContainers(prevContainers =>
+        prevContainers.map(container => ({
+          ...container,
+          items: container.items.filter(item => item.id !== itemIdToDelete)
+        }))
+      );
+      setShowDeleteConfirmation(false);
+      setItemIdToDelete(null);
+    }
+  };
+  
+  const handleCancelDeleteItem = () => {
+    setShowDeleteConfirmation(false);
+    setItemIdToDelete(null);
+  };
+
+  const handleChangeTitle = (id: UniqueIdentifier) => {
+    setActiveId(id);
+    setShowTitleModal(true);
+  };
+
+  const handleSaveTitle = () => {
+    if (!newTitle || !activeId) return;
+  
+    setContainers(prevContainers =>
+      prevContainers.map(container => {
+        if (container.id === activeId) {
+          return {
+            ...container,
+            title: newTitle,
+          };
+        }
+        return container;
+      })
+    );
+  
+    setShowTitleModal(false);
+    setNewTitle('');
+  };
+  
+ 
   // Find the value of the items
   function findValueOfItems(id: UniqueIdentifier | undefined, type: string) {
     if (type === 'container') {
@@ -444,19 +498,53 @@ export default function Home() {
             onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
           >
+            
             <SortableContext items={containers.map((i) => i.id)}>
               {containers.map((container) => (
                 <Container
                   id={container.id}
                   title={container.title}
                   key={container.id}
-                  onAddItem={() => {
-                    setShowAddItemModal(true);
-                    setCurrentContainerId(container.id);
-                  }}
+
+                  onClickEdit={() => handleChangeTitle(container.id)}
+                  
+               
                 >
+                  <Modal
+                      showModal={showTitleModal}
+                      setShowModal={setShowTitleModal}
+              
+                      >
+                        <div className="flex flex-col w-full items-start gap-y-4">
+                        <h1 className="text-gray-800 text-3xl font-bold">Alterar Título do Container</h1>
+                            <Input
+                            name='input'
+                            type="text"
+                            placeholder="Novo Título"
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
+                          />
+                          <Button onClick={handleSaveTitle}>Salvar</Button> 
+                        </div>
+                    </Modal>
+                    
                   <SortableContext items={container.items.map((i) => i.id)}>
                     <div className="flex items-start flex-col gap-y-4">
+                    <Modal
+                      showModal={showDeleteConfirmation}
+                      setShowModal={setShowDeleteConfirmation}
+                      >
+                        <div className="flex flex-col w-full items-start gap-y-4">
+                          <h1 className="text-gray-800 text-3xl font-bold">
+                            Confirmar Exclusão
+                          </h1>
+                          <p>Deseja realmente excluir este item?</p>
+                          <div className="flex gap-x-4">
+                            <Button onClick={handleConfirmDeleteItem}>Sim</Button>
+                            <Button onClick={handleCancelDeleteItem}>Cancelar</Button>
+                          </div>
+                        </div>
+                    </Modal>
                       {container.items.map((i) => (
                         <Items 
                         key={i.id} 
@@ -464,7 +552,8 @@ export default function Home() {
                         pedido={i.pedido}
                         status={i.status} 
                         horario={i.horario} 
-                        entregador={i.entregador} 
+                        entregador={i.entregador}
+                        onDelete={handleDeletePedido} 
                         />
                       ))}
                     </div>

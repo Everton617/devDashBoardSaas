@@ -3,29 +3,42 @@ import ContainerProps from './container.type';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
-import TrashIcon from '../Item/trashicon';
+import { PencilIcon } from '@heroicons/react/24/outline';
 import { Button } from '../Button';
+import { UniqueIdentifier } from '@dnd-kit/core';
 
-const Container = ({
-  id,
+
+
+type ContainerTypes = {
+  id: UniqueIdentifier;
   children,
-  title,
-  description,
+  title:string
   onAddItem,
-}: ContainerProps) => {
+  onClickEdit: () => void
+};
+
+const Container = ({ id, children, title, onClickEdit,onAddItem  }: ContainerTypes) => {
+  
+
   const {
     attributes,
-    setNodeRef,
     listeners,
+    setNodeRef,
     transform,
     transition,
     isDragging,
   } = useSortable({
     id: id,
     data: {
-      type: 'container',
+      type: 'item',
     },
   });
+
+  const showModal = () => {
+    onClickEdit(); 
+  };
+  
+
   return (
     <div
       {...attributes}
@@ -42,21 +55,20 @@ const Container = ({
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-1">
           <h1 className="text-gray-800 text-xl">{title}</h1>
-          <p className="text-gray-400 text-sm">{description}</p>
         </div>
-        <button
-          className="border p-2 text-xs rounded-xl shadow-lg hover:shadow-xl"
-          {...listeners}
-        >
-          Mover Pedido
-          
-        </button>
+        <div
+          className="w-5 h-5 text-red-500 rounded hover:text-black">
+            
+          <PencilIcon className="w-full h-full" onClick={showModal} />
+        </div>
       </div>
 
       {children}
+
       <Button variant="ghost" onClick={onAddItem}>
         Adicionar Pedido
       </Button>
+
     </div>
   );
 };

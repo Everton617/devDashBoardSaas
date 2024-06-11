@@ -3,8 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import React from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
-import TrashIcon from './trashicon';
-
+import { TrashIcon } from '@heroicons/react/24/outline';
 
 type ItemsType = {
   id: UniqueIdentifier;
@@ -12,11 +11,14 @@ type ItemsType = {
   status: string;
   horario: string;
   entregador: string;
+  onDelete: (id: UniqueIdentifier) => void;
 };
 
-const Items = ({ id, pedido, status, horario, entregador }: ItemsType) => {
- 
+const Items = ({ id, pedido, status, horario, entregador, onDelete }: ItemsType) => {
   
+  const deletarPedido = () => {
+    onDelete(id); // Chama a função onDelete com o id do pedido
+  };
 
   const {
     attributes,
@@ -31,6 +33,7 @@ const Items = ({ id, pedido, status, horario, entregador }: ItemsType) => {
       type: 'item',
     },
   });
+
   return (
     <div
       ref={setNodeRef}
@@ -44,14 +47,19 @@ const Items = ({ id, pedido, status, horario, entregador }: ItemsType) => {
         isDragging && 'opacity-50',
       )}
     >
-      <div className="flex items-center justify-between ">
-      <div className='flex flex-col' {...listeners}>
-        <div className='h-10'>Pedido:{pedido}</div>
-        <div className='h-10'>Status:{status}</div>
-        <div className='h-10'>Horário:{horario}</div>
-        <div className='h-10'>Entregador:{entregador}</div>
-      </div>
-      <TrashIcon />
+      <div className="flex items-center justify-between">
+        <div className='flex flex-col' {...listeners}>
+          <div className='h-10'>Pedido: {pedido}</div>
+          <div className='h-10'>Status: {status}</div>
+          <div className='h-10'>Horário: {horario}</div>
+          <div className='h-10'>Entregador: {entregador}</div>
+        </div>
+        <div
+          className="w-5 h-5 text-red-500 rounded hover:text-black"
+          onClick={deletarPedido}
+        >
+          <TrashIcon className="w-full h-full" />
+        </div>
       </div>
     </div>
   );
