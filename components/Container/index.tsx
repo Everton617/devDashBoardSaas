@@ -14,10 +14,12 @@ type ContainerTypes = {
   children,
   title:string
   onAddItem,
-  onClickEdit: () => void
+  onClickEdit: () => void,
+  containerIndex: number;
+  iconIndex:number;
 };
 
-const Container = ({ id, children, title, onClickEdit,onAddItem  }: ContainerTypes) => {
+const Container = ({ id, children, title, onClickEdit,onAddItem,containerIndex,iconIndex  }: ContainerTypes) => {
   
 
   const {
@@ -38,6 +40,27 @@ const Container = ({ id, children, title, onClickEdit,onAddItem  }: ContainerTyp
     onClickEdit(); 
   };
   
+  const containerColors = [
+    'border-t-4 border-red-400',
+    'border-t-4 border-blue-800',
+    'border-t-4 border-teal-400',
+    'border-t-4 border-yellow-300',
+  
+  ];
+
+  const iconColors = [
+    'text-color-red-400',
+    'text-color-blue-800',
+    'text-color-teal-400',
+    'text-color-yellow-300',
+  ];
+
+  const iconColorClass = iconColors[iconIndex % iconColors.length];
+
+  const containerColor = containerColors[containerIndex % containerColors.length];
+
+  
+  
 
   return (
     <div
@@ -48,16 +71,16 @@ const Container = ({ id, children, title, onClickEdit,onAddItem  }: ContainerTyp
         transform: CSS.Translate.toString(transform),
       }}
       className={clsx(
-        'w-full h-full p-4 bg-gray-50 rounded-xl flex flex-col gap-y-4',
+        'w-full h-full p-4 bg-gray-100 rounded-xl flex flex-col gap-y-4',containerColor,
         isDragging && 'opacity-50',
       )}
     >
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-1">
-          <h1 className="text-gray-800 text-lg">{title}</h1>
+          <h1 className="text-gray-700 text-lg">{title}</h1>
         </div>
         <div
-          className="w-5 h-5 text-red-500 rounded hover:text-black">
+          className={clsx('w-5 h-5 rounded hover:text-black', iconColorClass)}>
             
           <PencilIcon className="w-full h-full" onClick={showModal} />
         </div>

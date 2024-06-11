@@ -484,7 +484,7 @@ export default function Home() {
         </div>
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
-        <h1 className="text-gray-800 text-3xl font-bold">Kanban Board</h1>
+        <h1 className="text-gray-600 text-3xl font-bold">Kanban Board</h1>
         <Button onClick={() => setShowAddContainerModal(true)}>
           Adicionar Pedido
         </Button>
@@ -500,12 +500,13 @@ export default function Home() {
           >
             
             <SortableContext items={containers.map((i) => i.id)}>
-              {containers.map((container) => (
+              {containers.map((container,containerIndex) => (
                 <Container
                   id={container.id}
                   title={container.title}
                   key={container.id}
-
+                  containerIndex={containerIndex}
+                  iconIndex={containerIndex}
                   onAddItem={() => {
                     setShowAddItemModal(true);
                     setCurrentContainerId(container.id);
