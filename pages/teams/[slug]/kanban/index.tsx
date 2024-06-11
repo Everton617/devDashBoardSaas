@@ -485,7 +485,7 @@ export default function Home() {
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">Kanban Board</h1>
-        <Button onClick={() => setShowAddContainerModal(true)}>
+        <Button className='bg-red' onClick={() => setShowAddContainerModal(true)}>
           Adicionar Pedido
         </Button>
       </div>
@@ -506,7 +506,7 @@ export default function Home() {
                   title={container.title}
                   key={container.id}
                   containerIndex={containerIndex}
-                  iconIndex={containerIndex}
+
                   onAddItem={() => {
                     setShowAddItemModal(true);
                     setCurrentContainerId(container.id);

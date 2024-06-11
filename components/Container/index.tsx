@@ -1,5 +1,4 @@
 import React from 'react';
-import ContainerProps from './container.type';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
@@ -7,21 +6,16 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import { Button } from '../Button';
 import { UniqueIdentifier } from '@dnd-kit/core';
 
-
-
 type ContainerTypes = {
   id: UniqueIdentifier;
   children,
-  title:string
-  onAddItem,
-  onClickEdit: () => void,
+  title: string;
+  onAddItem: () => void;
+  onClickEdit: () => void;
   containerIndex: number;
-  iconIndex:number;
 };
 
-const Container = ({ id, children, title, onClickEdit,onAddItem,containerIndex,iconIndex  }: ContainerTypes) => {
-  
-
+const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex }: ContainerTypes) => {
   const {
     attributes,
     listeners,
@@ -37,30 +31,33 @@ const Container = ({ id, children, title, onClickEdit,onAddItem,containerIndex,i
   });
 
   const showModal = () => {
-    onClickEdit(); 
+    onClickEdit();
   };
-  
+
   const containerColors = [
     'border-t-4 border-red-400',
-    'border-t-4 border-blue-800',
+    'border-t-4 border-sky-500',
     'border-t-4 border-teal-400',
-    'border-t-4 border-yellow-300',
-  
+    'border-t-4 border-yellow-400',
   ];
 
   const iconColors = [
-    'text-color-red-400',
-    'text-color-blue-800',
-    'text-color-teal-400',
-    'text-color-yellow-300',
+    'text-red-400',
+    'text-sky-500',
+    'text-teal-400',
+    'text-yellow-400',
   ];
 
-  const iconColorClass = iconColors[iconIndex % iconColors.length];
+  const buttonColors = [
+    'bg-red-400',
+    'bg-sky-500',
+    'bg-teal-400',
+    'bg-yellow-400',
+  ];
 
   const containerColor = containerColors[containerIndex % containerColors.length];
-
-  
-  
+  const iconColor = iconColors[containerIndex % iconColors.length];
+  const buttonColor = buttonColors[containerIndex % buttonColors.length];
 
   return (
     <div
@@ -71,7 +68,7 @@ const Container = ({ id, children, title, onClickEdit,onAddItem,containerIndex,i
         transform: CSS.Translate.toString(transform),
       }}
       className={clsx(
-        'w-full h-full p-4 bg-gray-100 rounded-xl flex flex-col gap-y-4',containerColor,
+        'w-full h-full p-4 bg-gray-100 rounded-xl flex flex-col gap-y-4', containerColor,
         isDragging && 'opacity-50',
       )}
     >
@@ -80,15 +77,14 @@ const Container = ({ id, children, title, onClickEdit,onAddItem,containerIndex,i
           <h1 className="text-gray-700 text-lg">{title}</h1>
         </div>
         <div
-          className={clsx('w-5 h-5 rounded hover:text-black', iconColorClass)}>
-            
-          <PencilIcon className="w-full h-full" onClick={showModal} />
+          className={clsx('w-5 h-5 rounded hover:text-black')}>
+          <PencilIcon className={clsx('w-full h-full', iconColor)} onClick={showModal} />
         </div>
       </div>
 
       {children}
 
-      <Button variant="ghost" onClick={onAddItem}>
+      <Button variant="ghost" onClick={onAddItem} className={clsx(buttonColor)}>
         Adicionar Pedido
       </Button>
 
