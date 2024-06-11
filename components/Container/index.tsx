@@ -48,13 +48,13 @@ const Container = ({ id, children, title, onClickEdit,onAddItem  }: ContainerTyp
         transform: CSS.Translate.toString(transform),
       }}
       className={clsx(
-        'w-full h-full p-4 bg-red-50 rounded-xl flex flex-col gap-y-4',
+        'w-full h-full p-4 bg-gray-50 rounded-xl flex flex-col gap-y-4',
         isDragging && 'opacity-50',
       )}
     >
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-1">
-          <h1 className="text-gray-800 text-xl">{title}</h1>
+          <h1 className="text-gray-800 text-lg">{title}</h1>
         </div>
         <div
           className="w-5 h-5 text-red-500 rounded hover:text-black">

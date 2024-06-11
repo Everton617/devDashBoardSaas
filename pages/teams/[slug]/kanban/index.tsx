@@ -506,6 +506,11 @@ export default function Home() {
                   title={container.title}
                   key={container.id}
 
+                  onAddItem={() => {
+                    setShowAddItemModal(true);
+                    setCurrentContainerId(container.id);
+                  }}
+
                   onClickEdit={() => handleChangeTitle(container.id)}
                   
                
