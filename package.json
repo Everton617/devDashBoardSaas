@@ -45,6 +45,7 @@
     "bcryptjs": "2.4.3",
     "class-variance-authority": "^0.7.0",
     "classnames": "2.5.1",
+    "clsx": "^2.1.1",
     "cookies-next": "4.2.1",
     "currency-symbol-map": "5.1.0",
     "date-fns": "^3.6.0",
