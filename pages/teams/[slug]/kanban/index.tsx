@@ -29,7 +29,7 @@ import Modal from '@/components/Modal';
 import Input from '@/components/Input';
 import { Button } from '@/components/Button';
 
-
+import { useTranslation } from 'next-i18next';
 
 type DNDType = {
   id: UniqueIdentifier;
@@ -40,10 +40,14 @@ type DNDType = {
     status: string;
     horario: string;
     entregador: string;
+    onDelete: (id: UniqueIdentifier) => void;
   }[];
 };
 
 export default function Home() {
+
+  const { t } = useTranslation('common');
+
   const [containers, setContainers] = useState<DNDType[]>([
     {
       id: `container-${uuidv4()}`,
@@ -181,12 +185,36 @@ export default function Home() {
     }
   }
 
-  const findItemTitle = (id: UniqueIdentifier | undefined) => {
+  const findItemStatus = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.status;
+  };
+  
+  const findItemPedido = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
     if (!container) return '';
     const item = container.items.find((item) => item.id === id);
     if (!item) return '';
     return item.pedido;
+  };
+  
+  const findItemHorario = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.horario;
+  };
+  
+  const findItemEntregador = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.entregador;
   };
 
   const findContainerTitle = (id: UniqueIdentifier | undefined) => {
@@ -436,7 +464,7 @@ export default function Home() {
         setShowModal={setShowAddContainerModal}
       >
         <div className="flex flex-col w-full items-start gap-y-4 ">
-          <h1 className="text-gray-800 text-3xl font-bold">Adicionar Pedido</h1>
+          <h1 className="text-gray-800 text-3xl font-bold">{t('Adicionar Pedido')}</h1>
           <Input
             type="text"
             placeholder="Container Title"
@@ -444,13 +472,13 @@ export default function Home() {
             value={containerName}
             onChange={(e) => setContainerName(e.target.value)}
           />
-          <Button onClick={onAddContainer}>Adicionar Pedido</Button>
+          <Button onClick={onAddContainer}>{t('Adicionar Pedido')}</Button>
         </div>
       </Modal>
       {/* Add Item Modal */}
       <Modal showModal={showAddItemModal} setShowModal={setShowAddItemModal}>
         <div className="flex flex-col w-full items-start gap-y-4">
-          <h1 className="text-gray-800 text-3xl font-bold">Adicionar Pedido</h1>
+          <h1 className="text-gray-800 text-3xl font-bold">{t('Adicionar Pedido')}</h1>
           <Input
             type="text"
             placeholder="Pedido"
@@ -479,13 +507,13 @@ export default function Home() {
             value={Entregador}
             onChange={(e) => setEntregador(e.target.value)}
           />
-          <Button onClick={onAddItem}>Adicionar Pedido</Button>
+          <Button onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
         </div>
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
-        <h1 className="text-gray-600 text-3xl font-bold">Gestor de Pedidos</h1>
+        <h1 className="text-gray-600 text-3xl font-bold">{t('Gestor de Pedidos')}</h1>
         <Button onClick={() => setShowAddContainerModal(true)}>
-          Adicionar Pedido
+        {t('Adicionar Pedido')}
         </Button>
       </div>
       <div className="mt-10">
@@ -520,7 +548,7 @@ export default function Home() {
                       setShowModal={setShowTitleModal}
                       >
                         <div className="flex flex-col w-full items-start gap-y-4">
-                        <h1 className="text-gray-800 text-3xl font-bold">Alterar Título do Container</h1>
+                        <h1 className="text-gray-800 text-3xl font-bold">{t('Alterar título')}</h1>
                             <Input
                             name='input'
                             type="text"
@@ -528,7 +556,7 @@ export default function Home() {
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
                           />
-                          <Button onClick={handleSaveTitle}>Salvar</Button> 
+                          <Button onClick={handleSaveTitle}>{t('Salvar')}</Button> 
                         </div>
                     </Modal>
                     
@@ -540,12 +568,12 @@ export default function Home() {
                       >
                         <div className="flex flex-col w-full items-start gap-y-4">
                           <h1 className="text-gray-800 text-3xl font-bold">
-                            Confirmar Exclusão
+                          {t('Confirmar Exclusão ?')}
                           </h1>
-                          <p>Deseja realmente excluir este item?</p>
+                          <p>{t('Deseja mesmo excluir este pedido?')}</p>
                           <div className="flex gap-x-4">
-                            <Button onClick={handleConfirmDeleteItem}>Sim</Button>
-                            <Button onClick={handleCancelDeleteItem}>Cancelar</Button>
+                            <Button onClick={handleConfirmDeleteItem}>{t('Sim')}</Button>
+                            <Button onClick={handleCancelDeleteItem}>{t('Cancelar')}</Button>
                           </div>
                         </div>
                     </Modal>
@@ -568,13 +596,36 @@ export default function Home() {
             <DragOverlay adjustScale={false}>
               {/* Drag Overlay For item Item */}
               {activeId && activeId.toString().includes('item') && (
-                <Items id={activeId} title={findItemTitle(activeId)} />
+                <Items
+                id={activeId}
+                pedido={findItemPedido(activeId)}
+                status={findItemStatus(activeId)}
+                horario={findItemHorario(activeId)} 
+                entregador={findItemEntregador(activeId)}
+                onDelete={handleDeletePedido} />
               )}
               {/* Drag Overlay For Container */}
               {activeId && activeId.toString().includes('container') && (
-                <Container id={activeId} title={findContainerTitle(activeId)}>
+                <Container 
+
+                id={activeId} 
+                title={findContainerTitle(activeId)} 
+                onAddItem={onAddItem} 
+                onClickEdit={handleChangeTitle} 
+                containerIndex={containerIndex}
+                >
+
                   {findContainerItems(activeId).map((i) => (
-                    <Items key={i.id} title={i.title} id={i.id} />
+                    <Items
+                     key={i.id} 
+                     pedido={i.pedido} 
+                     id={i.id} 
+                     status={i.status}
+                     horario={i.horario}
+                     entregador={i.entregador}
+                     onDelete={handleDeletePedido}
+
+                     />
                   ))}
                 </Container>
               )}

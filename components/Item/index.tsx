@@ -4,6 +4,7 @@ import React from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'next-i18next';
 
 type ItemsType = {
   id: UniqueIdentifier;
@@ -15,6 +16,8 @@ type ItemsType = {
 };
 
 const Items = ({ id, pedido, status, horario, entregador, onDelete }: ItemsType) => {
+
+  const { t } = useTranslation('common');
   
   const deletarPedido = () => {
     onDelete(id); // Chama a função onDelete com o id do pedido
@@ -49,10 +52,10 @@ const Items = ({ id, pedido, status, horario, entregador, onDelete }: ItemsType)
     >
       <div className="flex items-center justify-between">
         <div className='flex flex-col' {...listeners}>
-          <div className='h-10'>Pedido: {pedido}</div>
-          <div className='h-10'>Status: {status}</div>
-          <div className='h-10'>Horário: {horario}</div>
-          <div className='h-10'>Entregador: {entregador}</div>
+          <div className='h-10'>{t('Pedido')}: {pedido}</div>
+          <div className='h-10'>{t('Status')}: {status}</div>
+          <div className='h-10'>{t('Horário')}: {horario}</div>
+          <div className='h-10'>{t('Entrgador')}: {entregador}</div>
         </div>
         <div
           className="w-5 h-5 text-red-500 rounded hover:text-black"
