@@ -1,4 +1,4 @@
-import { Cog6ToothIcon, CodeBracketIcon } from '@heroicons/react/24/outline';
+import { Cog6ToothIcon, CodeBracketIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import NavigationItems from './NavigationItems';
 import { NavigationProps, MenuItem } from './NavigationItems';
@@ -18,9 +18,9 @@ const TeamNavigation = ({ slug, activePathname }: NavigationItemsProps) => {
       active: activePathname === `/teams/${slug}/products`,
     },
     {
-      name: t('kanban'),
+      name: t('Gestor de Pedidos'),
       href: `/teams/${slug}/kanban`,
-      icon: CodeBracketIcon,
+      icon: BuildingStorefrontIcon,
       active: activePathname === `/teams/${slug}/kanban`,
     },
     {
