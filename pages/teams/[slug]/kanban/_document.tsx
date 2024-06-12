@@ -1,13 +1,7 @@
-import { Html, Head, Main, NextScript } from 'next/document'
+import Document from "pages/_document"
 
-export default function Document() {
+export default function DocumentPage() {
   return (
-    <Html lang="en">
-      <Head />
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
+    <Document/>
   )
 }

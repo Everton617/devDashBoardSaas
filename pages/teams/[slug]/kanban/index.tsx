@@ -21,7 +21,6 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 
-import { Inter } from 'next/font/google';
 
 // Components
 import Container from '@/components/Container';
@@ -30,7 +29,7 @@ import Modal from '@/components/Modal';
 import Input from '@/components/Input';
 import { Button } from '@/components/Button';
 
-const inter = Inter({ subsets: ['latin'] });
+
 
 type DNDType = {
   id: UniqueIdentifier;
@@ -251,7 +250,7 @@ export default function Home() {
       );
       // In the same container
       if (activeContainerIndex === overContainerIndex) {
-        let newItems = [...containers];
+        const newItems = [...containers];
         newItems[activeContainerIndex].items = arrayMove(
           newItems[activeContainerIndex].items,
           activeitemIndex,
@@ -261,7 +260,7 @@ export default function Home() {
         setContainers(newItems);
       } else {
         // In different containers
-        let newItems = [...containers];
+        const newItems = [...containers];
         const [removeditem] = newItems[activeContainerIndex].items.splice(
           activeitemIndex,
           1,
@@ -304,7 +303,7 @@ export default function Home() {
       );
 
       // Remove the active item from the active container and add it to the over container
-      let newItems = [...containers];
+      const newItems = [...containers];
       const [removeditem] = newItems[activeContainerIndex].items.splice(
         activeitemIndex,
         1,
@@ -370,7 +369,7 @@ export default function Home() {
 
       // In the same container
       if (activeContainerIndex === overContainerIndex) {
-        let newItems = [...containers];
+        const newItems = [...containers];
         newItems[activeContainerIndex].items = arrayMove(
           newItems[activeContainerIndex].items,
           activeitemIndex,
@@ -379,7 +378,7 @@ export default function Home() {
         setContainers(newItems);
       } else {
         // In different containers
-        let newItems = [...containers];
+        const newItems = [...containers];
         const [removeditem] = newItems[activeContainerIndex].items.splice(
           activeitemIndex,
           1,
@@ -418,7 +417,7 @@ export default function Home() {
         (item) => item.id === active.id,
       );
 
-      let newItems = [...containers];
+      const newItems = [...containers];
       const [removeditem] = newItems[activeContainerIndex].items.splice(
         activeitemIndex,
         1,
@@ -519,7 +518,6 @@ export default function Home() {
                   <Modal
                       showModal={showTitleModal}
                       setShowModal={setShowTitleModal}
-              
                       >
                         <div className="flex flex-col w-full items-start gap-y-4">
                         <h1 className="text-gray-800 text-3xl font-bold">Alterar Título do Container</h1>
