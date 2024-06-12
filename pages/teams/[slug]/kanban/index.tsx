@@ -116,6 +116,7 @@ export default function Home() {
       status: Status,
       horario: Horario ,
       entregador: Entregador,
+      onDelete: handleDeletePedido,
     });
     setContainers([...containers]);
     setPedido('');
@@ -472,7 +473,7 @@ export default function Home() {
             value={containerName}
             onChange={(e) => setContainerName(e.target.value)}
           />
-          <Button onClick={onAddContainer}>{t('Adicionar Pedido')}</Button>
+          <Button className="bg-red" onClick={onAddContainer}>{t('Adicionar Pedido')}</Button>
         </div>
       </Modal>
       {/* Add Item Modal */}
