@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { PencilIcon } from '@heroicons/react/24/outline';
-import { Button } from '../Button';
+import Button from '../Button';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { useTranslation } from 'next-i18next';
 
@@ -87,7 +87,7 @@ const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex
 
       {children}
 
-      <Button variant="ghost" onClick={onAddItem} className={clsx(buttonColor)}>
+      <Button onClick={onAddItem} className={clsx(buttonColor)}>
       {t('Adicionar Pedido')}
       </Button>
 

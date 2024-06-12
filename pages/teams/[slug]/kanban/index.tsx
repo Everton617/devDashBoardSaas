@@ -27,7 +27,7 @@ import Container from '@/components/Container';
 import Items from '@/components/Item';
 import Modal from '@/components/Modal';
 import Input from '@/components/Input';
-import { Button } from '@/components/Button';
+import  Button  from '@/components/Button';
 
 import { useTranslation } from 'next-i18next';
 
@@ -507,12 +507,12 @@ export default function Home() {
             value={Entregador}
             onChange={(e) => setEntregador(e.target.value)}
           />
-          <Button onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
+          <Button className="bg-red" onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
         </div>
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">{t('Gestor de Pedidos')}</h1>
-        <Button onClick={() => setShowAddContainerModal(true)}>
+        <Button className="bg-red" onClick={() => setShowAddContainerModal(true)}>
         {t('Adicionar Pedido')}
         </Button>
       </div>
@@ -556,7 +556,7 @@ export default function Home() {
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
                           />
-                          <Button onClick={handleSaveTitle}>{t('Salvar')}</Button> 
+                          <Button className="bg-red" onClick={handleSaveTitle}>{t('Salvar')}</Button> 
                         </div>
                     </Modal>
                     
@@ -572,8 +572,8 @@ export default function Home() {
                           </h1>
                           <p>{t('Deseja mesmo excluir este pedido?')}</p>
                           <div className="flex gap-x-4">
-                            <Button onClick={handleConfirmDeleteItem}>{t('Sim')}</Button>
-                            <Button onClick={handleCancelDeleteItem}>{t('Cancelar')}</Button>
+                            <Button className="bg-red" onClick={handleConfirmDeleteItem}>{t('Sim')}</Button>
+                            <Button className="bg-red"onClick={handleCancelDeleteItem}>{t('Cancelar')}</Button>
                           </div>
                         </div>
                     </Modal>
