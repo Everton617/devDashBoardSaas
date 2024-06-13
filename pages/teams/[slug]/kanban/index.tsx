@@ -90,6 +90,9 @@ export default function Home() {
   const [showAddContainerModal, setShowAddContainerModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
 
+
+  const [activeContainerIndex] = useState<number | null>(null);
+
   const onAddContainer = () => {
     if (!containerName) return;
     const id = `container-${uuidv4()}`;
@@ -513,7 +516,7 @@ export default function Home() {
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">{t('Gestor de Pedidos')}</h1>
-        <Button className="bg-red" onClick={() => setShowAddContainerModal(true)}>
+        <Button variant='destructive'  onClick={() => setShowAddContainerModal(true)}>
         {t('Adicionar Pedido')}
         </Button>
       </div>
@@ -613,7 +616,7 @@ export default function Home() {
                 title={findContainerTitle(activeId)} 
                 onAddItem={onAddItem} 
                 onClickEdit={handleChangeTitle} 
-                containerIndex={containerIndex}
+                containerIndex={activeContainerIndex}
                 >
 
                   {findContainerItems(activeId).map((i) => (
