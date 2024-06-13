@@ -13,6 +13,7 @@ enum Role {
   MEMBER
 }
 
+
 model Account {
   id                String  @id @default(uuid())
   userId            String
@@ -100,6 +101,19 @@ model TeamMember {
 
   @@unique([teamId, userId])
   @@index([userId])
+}
+
+model Order {
+  id      String    @id 
+  pedido  String
+  status  String
+  horario DateTime
+  entregador String
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
 }
 
 model Invitation {
