@@ -8,11 +8,15 @@ import clsx from 'clsx';
 // Types
 import ModalProps from './modal.type';
 
+
+
 export default function Modal({
   children,
   showModal,
   setShowModal,
   containerClasses,
+  
+  
 }: ModalProps) {
   const desktopModalRef = useRef(null);
 

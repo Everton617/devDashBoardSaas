@@ -87,26 +87,16 @@ export default function Home() {
   const [newTitle, setNewTitle] = useState('');
 
   const [itemIdToDelete, setItemIdToDelete] = useState<UniqueIdentifier | null>(null);
-  const [showAddContainerModal, setShowAddContainerModal] = useState(false);
+ 
   const [showAddItemModal, setShowAddItemModal] = useState(false);
 
 
   const [activeContainerIndex] = useState<number | null>(null);
 
-  const onAddContainer = () => {
-    if (!containerName) return;
-    const id = `container-${uuidv4()}`;
-    setContainers([
-      ...containers,
-      {
-        id,
-        title: containerName,
-        items: [],
-      },
-    ]);
-    setContainerName('');
-    setShowAddContainerModal(false);
-  };
+
+
+
+  
 
   const onAddItem = () => {
     if (!Pedido) return;
@@ -463,24 +453,7 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-9xl py-10 ">
       {/* Add Container Modal */}
-      <Modal
-        showModal={showAddContainerModal}
-        setShowModal={setShowAddContainerModal}
-      >
-        <div className="flex flex-col w-full items-start gap-y-4 ">
-          <h1 className="text-gray-800 text-3xl font-bold">{t('Adicionar Pedido')}</h1>
-          <Input
-            type="text"
-            placeholder="Container Title"
-            name="containername"
-            value={containerName}
-            onChange={(e) => setContainerName(e.target.value)}
-          />
-          <Button className="bg-red" onClick={onAddContainer}>{t('Adicionar Pedido')}</Button>
-        </div>
-      </Modal>
-      {/* Add Item Modal */}
-      <Modal showModal={showAddItemModal} setShowModal={setShowAddItemModal}>
+      <Modal showModal={showAddItemModal} setShowModal={setShowAddItemModal} currentContainerId={currentContainerId}>
         <div className="flex flex-col w-full items-start gap-y-4">
           <h1 className="text-gray-800 text-3xl font-bold">{t('Adicionar Pedido')}</h1>
           <Input
@@ -490,13 +463,16 @@ export default function Home() {
             value={Pedido}
             onChange={(e) => setPedido(e.target.value)}
           />
-          <Input
-            type="Status"
-            placeholder="Status"
-            name="status"
-            value={Status}
-            onChange={(e) => setStatus(e.target.value)}
-          />
+
+          <select className="select select-bordered w-full max-w-xs">
+            <option disabled value="">{t('Selecione um contêiner')}</option>
+            {containers
+              .filter(container => container.id === currentContainerId) // Filtrar apenas o contêiner atual
+              .map(container => (
+                <option key={container.id} value={container.title}>{container.title}</option>
+              ))
+            }
+          </select>
           <Input
             type="text"
             placeholder="Horário"
@@ -511,12 +487,50 @@ export default function Home() {
             value={Entregador}
             onChange={(e) => setEntregador(e.target.value)}
           />
-          <Button className="bg-red" onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
+          <Button  variant='destructive'  onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
+        </div>
+      </Modal>
+      {/* Add Item Modal */}
+      <Modal showModal={showAddItemModal} setShowModal={setShowAddItemModal} currentContainerId={currentContainerId}>
+        <div className="flex flex-col w-full items-start gap-y-4">
+          <h1 className="text-gray-800 text-3xl font-bold">{t('Adicionar Pedido')}</h1>
+          <Input
+            type="text"
+            placeholder="Pedido"
+            name="pedido"
+            value={Pedido}
+            onChange={(e) => setPedido(e.target.value)}
+          />
+
+          <select className="select select-bordered w-full max-w-xs">
+            <option disabled value="">{t('Selecione um contêiner')}</option>
+            {containers
+              .filter(container => container.id === currentContainerId) // Filtrar apenas o contêiner atual
+              .map(container => (
+                <option key={container.id} value={container.title}>{container.title}</option>
+              ))
+            }
+          </select>
+          <Input
+            type="text"
+            placeholder="Horário"
+            name="horario"
+            value={Horario}
+            onChange={(e) => setHorario(e.target.value)}
+          />
+          <Input
+            type="text"
+            placeholder="Entregador"
+            name="entregador"
+            value={Entregador}
+            onChange={(e) => setEntregador(e.target.value)}
+          />
+          <Button  variant='destructive'  onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
         </div>
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">{t('Gestor de Pedidos')}</h1>
-        <Button variant='destructive'  onClick={() => setShowAddContainerModal(true)}>
+        <Button variant='destructive'  onClick={onAddItem}>
         {t('Adicionar Pedido')}
         </Button>
       </div>
@@ -541,6 +555,7 @@ export default function Home() {
                   onAddItem={() => {
                     setShowAddItemModal(true);
                     setCurrentContainerId(container.id);
+                    setContainerName(container.title)
                   }}
 
                   onClickEdit={() => handleChangeTitle(container.id)}
@@ -550,6 +565,7 @@ export default function Home() {
                   <Modal
                       showModal={showTitleModal}
                       setShowModal={setShowTitleModal}
+                      currentContainerId=''
                       >
                         <div className="flex flex-col w-full items-start gap-y-4">
                         <h1 className="text-gray-800 text-3xl font-bold">{t('Alterar título')}</h1>
@@ -560,7 +576,7 @@ export default function Home() {
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
                           />
-                          <Button className="bg-red" onClick={handleSaveTitle}>{t('Salvar')}</Button> 
+                          <Button variant='destructive' onClick={handleSaveTitle}>{t('Salvar')}</Button> 
                         </div>
                     </Modal>
                     
