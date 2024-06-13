@@ -105,11 +105,12 @@ export default function Home() {
     setShowAddContainerModal(false);
   };
 
-  const onAddItem = () => {
+  const onAddItem = async () => {
     if (!Pedido) return;
     const id = `item-${uuidv4()}`;
     const container = containers.find((item) => item.id === currentContainerId);
     if (!container) return;
+    console.log(container.title);
     container.items.push({
       id,
       pedido: Pedido,
@@ -124,14 +125,37 @@ export default function Home() {
     setHorario('');
     setEntregador('');
     setShowAddItemModal(false);
+
+    const order = {
+        id: id,
+        pedido: Pedido,
+        status: Status,
+        entregador: Entregador,
+    }
+
+    try {
+        const response = await fetch("/api/teams/qu1ck/order", {
+             method: "POST",
+             headers: {"content-type": "application/json"},
+             body: JSON.stringify({order: order})
+        })
+
+        const data = await response.json();
+        console.log("response ==> ", data);
+    } catch (error) {
+        console.log("error ==> ", error);
+    }
+   
+       
   };
 
   const handleDeletePedido = (id: UniqueIdentifier) => {
     setItemIdToDelete(id); // Definir o item a ser excluído
     setShowDeleteConfirmation(true); // Mostrar o modal de confirmação
+    
   };
   
-  const handleConfirmDeleteItem = () => {
+  const handleConfirmDeleteItem = async () => {
     if (itemIdToDelete) {
       setContainers(prevContainers =>
         prevContainers.map(container => ({
@@ -141,6 +165,18 @@ export default function Home() {
       );
       setShowDeleteConfirmation(false);
       setItemIdToDelete(null);
+      try {
+        const response = await fetch("/api/teams/qu1ck/order", {
+             method: "DELETE",
+             headers: {"content-type": "application/json"},
+             body: JSON.stringify({orderId: itemIdToDelete})
+        })
+
+        const data = await response.json();
+        console.log("response ==> ", data);
+      } catch (error) {
+        console.log("error ==> ", error);
+      }
     }
   };
   
