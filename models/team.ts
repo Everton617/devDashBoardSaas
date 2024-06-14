@@ -442,7 +442,7 @@ export const getCurrentUserWithTeam = async (
   const { role, team } = await getTeamMember(user.id, slug);
 
   return {
-    ...user,
+    user,
     role,
     team,
   };

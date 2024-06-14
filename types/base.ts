@@ -48,6 +48,7 @@ export type AppEvent =
   | 'team.created'
   | 'team.updated'
   | 'team.removed'
+  | 'order.created'
   | 'apikey.created'
   | 'apikey.removed'
   | 'apikey.fetched'

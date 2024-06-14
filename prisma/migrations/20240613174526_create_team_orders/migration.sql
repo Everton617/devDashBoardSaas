@@ -1,0 +1,16 @@
+-- CreateEnum
+CREATE TYPE "OrderStatus" AS ENUM ('BACKLOG', 'IN_PROCESS', 'IN_DELIVERY', 'COMPLETE');
+
+-- CreateTable
+CREATE TABLE "Order" (
+    "id" TEXT NOT NULL,
+    "teamId" TEXT NOT NULL,
+    "status" "OrderStatus" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "Order" ADD CONSTRAINT "Order_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

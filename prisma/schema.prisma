@@ -30,7 +30,6 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-
   @@index([userId])
 }
 
@@ -68,6 +67,7 @@ model User {
   accounts    Account[]
   sessions    Session[]
   invitations Invitation[]
+  Order       Order[]
 }
 
 model Team {
@@ -83,6 +83,7 @@ model Team {
   members         TeamMember[]
   invitations     Invitation[]
   apiKeys         ApiKey[]
+  Order           Order[]
 
   @@index([billingId])
 }
@@ -100,6 +101,24 @@ model TeamMember {
 
   @@unique([teamId, userId])
   @@index([userId])
+}
+
+model Order {
+  id         String   @id
+  pedido     String
+  status     String
+  horario    DateTime
+  entregador String
+  from       String
+  managedBy  String
+  teamId     String
+  userId     String
+
+  team Team @relation(fields: [teamId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Invitation {

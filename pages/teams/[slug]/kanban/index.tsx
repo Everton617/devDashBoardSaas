@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useRouter } from 'next/router';
 
 // DnD
 import {
@@ -31,6 +32,7 @@ import  Button  from '@/components/Button';
 import Select from '@/components/select';
 
 import { useTranslation } from 'next-i18next';
+import { useSession } from "next-auth/react";
 
 type DNDType = {
   id: UniqueIdentifier;
@@ -48,6 +50,9 @@ type DNDType = {
 export default function Home() {
 
   const { t } = useTranslation('common');
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { slug } = router.query;
 
   const [containers, setContainers] = useState<DNDType[]>([
     {
@@ -98,11 +103,12 @@ export default function Home() {
 
   
 
-  const onAddItem = () => {
+  const onAddItem = async () => {
     if (!Pedido) return;
     const id = `item-${uuidv4()}`;
     const container = containers.find((item) => item.id === currentContainerId);
     if (!container) return;
+    console.log(container.title);
     container.items.push({
       id,
       pedido: Pedido,
@@ -118,14 +124,39 @@ export default function Home() {
     setHorario('');
     setEntregador('');
     setShowAddItemModal(false);
+
+    const order = {
+        id: id,
+        pedido: Pedido,
+        status: container.title,
+        entregador: Entregador,
+    }
+
+    const user = session ? session.user : "unknow";
+
+    try {
+        const response = await fetch(`/api/teams/${slug}/order`, {
+             method: "POST",
+             headers: {"content-type": "application/json"},
+             body: JSON.stringify({order: order, user: user})
+        })
+
+        const data = await response.json();
+        console.log("response ==> ", data);
+    } catch (error) {
+        console.log("error ==> ", error);
+    }
+   
+       
   };
 
   const handleDeletePedido = (id: UniqueIdentifier) => {
     setItemIdToDelete(id); // Definir o item a ser excluído
     setShowDeleteConfirmation(true); // Mostrar o modal de confirmação
+    
   };
   
-  const handleConfirmDeleteItem = () => {
+  const handleConfirmDeleteItem = async () => {
     if (itemIdToDelete) {
       setContainers(prevContainers =>
         prevContainers.map(container => ({
@@ -135,6 +166,18 @@ export default function Home() {
       );
       setShowDeleteConfirmation(false);
       setItemIdToDelete(null);
+      try {
+        const response = await fetch("/api/teams/qu1ck/order", {
+             method: "DELETE",
+             headers: {"content-type": "application/json"},
+             body: JSON.stringify({orderId: itemIdToDelete})
+        })
+
+        const data = await response.json();
+        console.log("response ==> ", data);
+      } catch (error) {
+        console.log("error ==> ", error);
+      }
     }
   };
   
