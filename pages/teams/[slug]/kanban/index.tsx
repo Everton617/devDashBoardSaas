@@ -458,21 +458,22 @@ export default function Home() {
       setShowModal={setShowAddItemModal}
       currentContainerId={currentContainerId}>
 
-        <div className="flex flex-col w-full items-start gap-y-4">
+        <div className="flex flex-col w-full items-start gap-y-3">
           <h1 className="text-gray-800 text-2xl font-bold">{t('Adicionar Pedido')}</h1>
           
-
+          <label>{t('Pedido: ')}</label>
           <Input
             type="text"
-            placeholder="Pedido"
+            placeholder="Insira o número do seu pedido"
             name="pedido"
             value={Pedido}
             onChange={(e) => setPedido(e.target.value)}
           />
-
+          
+          <label>{t('Entregador: ')}</label>
           <Input
             type="text"
-            placeholder="Entregador"
+            placeholder="Insira o nome do entregador"
             name="entregador"
             value={Entregador}
             onChange={(e) => setEntregador(e.target.value)}
