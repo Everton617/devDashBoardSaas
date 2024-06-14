@@ -20,7 +20,8 @@ type EventType =
   | 'webhook.update'
   | 'team.create'
   | 'team.update'
-  | 'team.delete';
+  | 'team.delete'
+  | 'order.create';
 
 type Request = {
   action: EventType;
