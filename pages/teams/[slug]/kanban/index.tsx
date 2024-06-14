@@ -83,7 +83,6 @@ export default function Home() {
 
   const [Pedido, setPedido] = useState('');
   const [Status, setStatus] = useState('');
-  const [Horario, setHorario] = useState('');
   const [Entregador, setEntregador] = useState('');
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -121,7 +120,6 @@ export default function Home() {
     setContainers([...containers]);
     setPedido('');
     setStatus('');
-    setHorario('');
     setEntregador('');
     setShowAddItemModal(false);
 
