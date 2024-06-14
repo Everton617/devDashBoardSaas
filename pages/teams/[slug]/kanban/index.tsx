@@ -29,6 +29,7 @@ import Items from '@/components/Item';
 import Modal from '@/components/Modal';
 import Input from '@/components/Input';
 import  Button  from '@/components/Button';
+import Select from '@/components/select';
 
 import { useTranslation } from 'next-i18next';
 import { useSession } from "next-auth/react";
@@ -40,7 +41,7 @@ type DNDType = {
     id: UniqueIdentifier;
     pedido: string;
     status: string;
-    horario: string;
+    horario: Date;
     entregador: string;
     onDelete: (id: UniqueIdentifier) => void;
   }[];
@@ -79,7 +80,6 @@ export default function Home() {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [currentContainerId, setCurrentContainerId] =
     useState<UniqueIdentifier>();
-  const [containerName, setContainerName] = useState('');
 
   const [Pedido, setPedido] = useState('');
   const [Status, setStatus] = useState('');
@@ -92,23 +92,16 @@ export default function Home() {
   const [newTitle, setNewTitle] = useState('');
 
   const [itemIdToDelete, setItemIdToDelete] = useState<UniqueIdentifier | null>(null);
-  const [showAddContainerModal, setShowAddContainerModal] = useState(false);
+ 
   const [showAddItemModal, setShowAddItemModal] = useState(false);
 
-  const onAddContainer = () => {
-    if (!containerName) return;
-    const id = `container-${uuidv4()}`;
-    setContainers([
-      ...containers,
-      {
-        id,
-        title: containerName,
-        items: [],
-      },
-    ]);
-    setContainerName('');
-    setShowAddContainerModal(false);
-  };
+
+  const [activeContainerIndex] = useState<number | null>(null);
+
+
+
+
+  
 
   const onAddItem = async () => {
     if (!Pedido) return;
@@ -120,10 +113,11 @@ export default function Home() {
       id,
       pedido: Pedido,
       status: Status,
-      horario: Horario ,
+      horario: new Date(),
       entregador: Entregador,
       onDelete: handleDeletePedido,
     });
+
     setContainers([...containers]);
     setPedido('');
     setStatus('');
@@ -229,13 +223,7 @@ export default function Home() {
     }
   }
 
-  const findItemStatus = (id: UniqueIdentifier | undefined) => {
-    const container = findValueOfItems(id, 'item');
-    if (!container) return '';
-    const item = container.items.find((item) => item.id === id);
-    if (!item) return '';
-    return item.status;
-  };
+
   
   const findItemPedido = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
@@ -500,29 +488,23 @@ export default function Home() {
     setActiveId(null);
   }
 
+ 
+   
+
   return (
     <div className="mx-auto max-w-9xl py-10 ">
       {/* Add Container Modal */}
-      <Modal
-        showModal={showAddContainerModal}
-        setShowModal={setShowAddContainerModal}
-      >
-        <div className="flex flex-col w-full items-start gap-y-4 ">
-          <h1 className="text-gray-800 text-3xl font-bold">{t('Adicionar Pedido')}</h1>
-          <Input
-            type="text"
-            placeholder="Container Title"
-            name="containername"
-            value={containerName}
-            onChange={(e) => setContainerName(e.target.value)}
-          />
-          <Button className="bg-red" onClick={onAddContainer}>{t('Adicionar Pedido')}</Button>
-        </div>
-      </Modal>
+      
       {/* Add Item Modal */}
-      <Modal showModal={showAddItemModal} setShowModal={setShowAddItemModal}>
+      <Modal 
+      showModal={showAddItemModal}
+      setShowModal={setShowAddItemModal}
+      currentContainerId={currentContainerId}>
+
         <div className="flex flex-col w-full items-start gap-y-4">
-          <h1 className="text-gray-800 text-3xl font-bold">{t('Adicionar Pedido')}</h1>
+          <h1 className="text-gray-800 text-2xl font-bold">{t('Adicionar Pedido')}</h1>
+          
+
           <Input
             type="text"
             placeholder="Pedido"
@@ -530,20 +512,7 @@ export default function Home() {
             value={Pedido}
             onChange={(e) => setPedido(e.target.value)}
           />
-          <Input
-            type="Status"
-            placeholder="Status"
-            name="status"
-            value={Status}
-            onChange={(e) => setStatus(e.target.value)}
-          />
-          <Input
-            type="text"
-            placeholder="Horário"
-            name="horario"
-            value={Horario}
-            onChange={(e) => setHorario(e.target.value)}
-          />
+
           <Input
             type="text"
             placeholder="Entregador"
@@ -551,13 +520,30 @@ export default function Home() {
             value={Entregador}
             onChange={(e) => setEntregador(e.target.value)}
           />
-          <Button className="bg-red" onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
+
+          <Select
+            name="status"
+            value={Status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+             {containers
+              .filter(container => container.id === currentContainerId) // Filtrar apenas o contêiner atual
+              .map(container => (
+                <option key={container.id} value={container.title}>{container.title}</option>
+              ))
+            }
+          </Select>
+
+          <Button  variant='destructive'  onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
         </div>
       </Modal>
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">{t('Gestor de Pedidos')}</h1>
-        <Button className="bg-red" onClick={() => setShowAddContainerModal(true)}>
-        {t('Adicionar Pedido')}
+        <Button variant='destructive' onClick={() => {
+          onAddItem();
+          setShowAddItemModal(true);
+        }}>
+          {t('Adicionar Pedido')}
         </Button>
       </div>
       <div className="mt-10">
@@ -581,6 +567,7 @@ export default function Home() {
                   onAddItem={() => {
                     setShowAddItemModal(true);
                     setCurrentContainerId(container.id);
+              
                   }}
 
                   onClickEdit={() => handleChangeTitle(container.id)}
@@ -600,7 +587,7 @@ export default function Home() {
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
                           />
-                          <Button className="bg-red" onClick={handleSaveTitle}>{t('Salvar')}</Button> 
+                          <Button variant='destructive' onClick={handleSaveTitle}>{t('Salvar')}</Button> 
                         </div>
                     </Modal>
                     
@@ -626,8 +613,7 @@ export default function Home() {
                         key={i.id} 
                         id={i.id}
                         pedido={i.pedido}
-                        status={i.status} 
-                        horario={i.horario} 
+                        horario={i.horario}
                         entregador={i.entregador}
                         onDelete={handleDeletePedido} 
                         />
@@ -643,8 +629,8 @@ export default function Home() {
                 <Items
                 id={activeId}
                 pedido={findItemPedido(activeId)}
-                status={findItemStatus(activeId)}
-                horario={findItemHorario(activeId)} 
+              
+                horario={new Date(findItemHorario(activeId))}
                 entregador={findItemEntregador(activeId)}
                 onDelete={handleDeletePedido} />
               )}
@@ -656,7 +642,7 @@ export default function Home() {
                 title={findContainerTitle(activeId)} 
                 onAddItem={onAddItem} 
                 onClickEdit={handleChangeTitle} 
-                containerIndex={containerIndex}
+                containerIndex={activeContainerIndex}
                 >
 
                   {findContainerItems(activeId).map((i) => (
@@ -664,7 +650,6 @@ export default function Home() {
                      key={i.id} 
                      pedido={i.pedido} 
                      id={i.id} 
-                     status={i.status}
                      horario={i.horario}
                      entregador={i.entregador}
                      onDelete={handleDeletePedido}

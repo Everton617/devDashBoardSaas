@@ -13,7 +13,7 @@ type ContainerTypes = {
   title: string;
   onAddItem: () => void;
   onClickEdit;
-  containerIndex: number;
+  containerIndex: number | null;
 };
 
 const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex }: ContainerTypes) => {
@@ -58,9 +58,11 @@ const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex
     'bg-yellow-400 hover:bg-yellow-500',
   ];
 
-  const containerColor = containerColors[containerIndex % containerColors.length];
-  const iconColor = iconColors[containerIndex % iconColors.length];
-  const buttonColor = buttonColors[containerIndex % buttonColors.length];
+  const index = containerIndex !== null ? containerIndex : 0;
+
+  const containerColor = containerColors[index % containerColors.length];
+  const iconColor = iconColors[index % iconColors.length ];
+  const buttonColor = buttonColors[index % buttonColors.length];
 
   return (
     <div
