@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useRouter } from 'next/router';
 
 // DnD
 import {
@@ -30,6 +31,7 @@ import Input from '@/components/Input';
 import  Button  from '@/components/Button';
 
 import { useTranslation } from 'next-i18next';
+import { useSession } from "next-auth/react";
 
 type DNDType = {
   id: UniqueIdentifier;
@@ -47,6 +49,9 @@ type DNDType = {
 export default function Home() {
 
   const { t } = useTranslation('common');
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { slug } = router.query;
 
   const [containers, setContainers] = useState<DNDType[]>([
     {
@@ -129,15 +134,17 @@ export default function Home() {
     const order = {
         id: id,
         pedido: Pedido,
-        status: Status,
+        status: container.title,
         entregador: Entregador,
     }
 
+    const user = session ? session.user : "unknow";
+
     try {
-        const response = await fetch("/api/teams/qu1ck/order", {
+        const response = await fetch(`/api/teams/${slug}/order`, {
              method: "POST",
              headers: {"content-type": "application/json"},
-             body: JSON.stringify({order: order})
+             body: JSON.stringify({order: order, user: user})
         })
 
         const data = await response.json();

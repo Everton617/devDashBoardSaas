@@ -9,7 +9,7 @@ import { useFormik } from 'formik';
 import { Button } from 'react-daisyui';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import React, { type ReactElement, useEffect, useState, useRef } from 'react';
+import React, { ReactElement, useEffect, useState, useRef } from 'react';
 import type { ComponentStatus } from 'react-daisyui/dist/types';
 import { getCsrfToken, signIn, useSession } from 'next-auth/react';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';

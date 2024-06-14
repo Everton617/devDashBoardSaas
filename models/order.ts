@@ -4,7 +4,11 @@ interface IOrder {
     pedido: string,
     status: string,
     horario: Date,
-    entregador: string
+    entregador: string,
+    from: string,
+    managedBy: string,
+    teamId: string,
+    userId: string
 }
 export async function createOrder(order: IOrder) {
     return await prisma.order.create({
@@ -13,7 +17,13 @@ export async function createOrder(order: IOrder) {
             pedido: order.pedido,
             status: order.status,
             horario: order.horario,
-            entregador: order.entregador
+            entregador: order.entregador,
+            from: order.from,
+            managedBy: order.managedBy,
+            
+            teamId: order.teamId,
+            userId: order.userId
+
         }
     });
 }
