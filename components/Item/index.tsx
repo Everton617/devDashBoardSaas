@@ -5,22 +5,27 @@ import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
+import { format } from 'date-fns';
+
+
 
 type ItemsType = {
   id: UniqueIdentifier;
   pedido: string;
-  status: string;
-  horario: string;
+  horario: Date;
   entregador: string;
   onDelete: (id: UniqueIdentifier) => void;
 };
 
-const Items = ({ id, pedido, status, horario, entregador, onDelete }: ItemsType) => {
+const Items = ({ id, pedido, horario, entregador, onDelete }: ItemsType) => {
 
   const { t } = useTranslation('common');
   
+
+
+
   const deletarPedido = () => {
-    onDelete(id); // Chama a função onDelete com o id do pedido
+    onDelete(id);
   };
 
   const {
@@ -53,9 +58,8 @@ const Items = ({ id, pedido, status, horario, entregador, onDelete }: ItemsType)
       <div className="flex items-center justify-between">
         <div className='flex flex-col' {...listeners}>
           <div className='h-10'>{t('Pedido')}: {pedido}</div>
-          <div className='h-10'>{t('Status')}: {status}</div>
-          <div className='h-10'>{t('Horário')}: {horario}</div>
-          <div className='h-10'>{t('Entrgador')}: {entregador}</div>
+          <div className='h-10'>{t('Horário')}: {format(horario, 'dd/MM/yyyy HH:mm')}</div>
+          <div className='h-10'>{t('Entregador')}: {entregador}</div>
         </div>
         <div
           className="w-5 h-5 text-red-500 rounded hover:text-black"

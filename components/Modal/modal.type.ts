@@ -6,4 +6,5 @@ export default interface ModalProps {
   setShowModal: Dispatch<SetStateAction<boolean>>;
   containerClasses?: string;
   currentContainerId?: string | number;
+  
 }
