@@ -103,22 +103,61 @@ model TeamMember {
   @@index([userId])
 }
 
+enum OrderStatus {
+  BACKLOG
+  ANDAMENTO
+  ENTREGA
+  CONCLUIDO
+}
+
 model Order {
-  id         String   @id
-  pedido     String
-  status     String
-  horario    DateTime
-  entregador String
-  from       String
-  managedBy  String
-  teamId     String
-  userId     String
+  id          String      @id @default(uuid())
+  status      OrderStatus @default(BACKLOG)
+  horario     DateTime
+  entregador  String
+  rua         String
+  numero      String
+  complemento String
+  cep         String
+  cidade      String
+  estado      String
+  tel         String
+  metodo_pag  String
+  instrucoes  String
+  teamId      String
+
+  OrderItem OrderItem[]
 
   team Team @relation(fields: [teamId], references: [id])
-  user User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model OrderItem {
+  id         String @id
+  itemId     String
+  quantidade Int
+  instrucoes String
+
+  item Item @relation(fields: [itemId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+}
+
+model Item {
+  id   String @id @default(uuid())
+  code String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  OrderItem OrderItem[]
 }
 
 model Invitation {
