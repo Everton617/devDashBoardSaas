@@ -88,19 +88,19 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse, teamId: str
     
     if (!req.body.order) throw new Error("Order not provided");
 
-    const testOrder = {
-        status: "ANDAMENTO",
-        entregador: "vini",
-        rua: "Alameda",
-        numero: "12",
-        complemento: "perto dali",
-        cep: "532",
-        cidade: "Natal",
-        estado: "RN",
-        tel: "6969",
-        metodo_pag: "cartao",
-        instrucoes: "sem tijolo"
-    }
+    // const testOrder = {
+    //     status: "ANDAMENTO",
+    //     entregador: "vini",
+    //     rua: "Alameda",
+    //     numero: "12",
+    //     complemento: "perto dali",
+    //     cep: "532",
+    //     cidade: "Natal",
+    //     estado: "RN",
+    //     tel: "6969",
+    //     metodo_pag: "cartao",
+    //     instrucoes: "sem tijolo"
+   //  }
 
     const { 
         status,
@@ -114,7 +114,7 @@ async function handlePOST(req: NextApiRequest, res: NextApiResponse, teamId: str
         tel,
         metodo_pag,
         instrucoes
-     } = validateOrder(testOrder) || validateOrder(req.body.order);
+     } = validateOrder(req.body.order);
 
      if (!EOrderStatus[status as keyof typeof EOrderStatus])
          throw new Error("Invalid Status type");
