@@ -3,17 +3,22 @@ import { prisma } from "@/lib/prisma";
 
 import { 
     getCurrentUserWithTeam,
+    getTeam,
     throwIfNoTeamAccess,
 } from "models/team";
 
 import { 
+    EOrderStatus,
+    IOrder,
     createOrder,
-    deleteOrder
+    deleteOrder,
+    getOrders
 } from "models/order";
 
 import { sendAudit } from "@/lib/retraced";
 
-import { throwIfNotAllowed } from "models/user";
+import { getCurrentUser, throwIfNotAllowed } from "models/user";
+import { teamSlugSchema, validateWithSchema } from "@/lib/zod";
 
 export default async function handler(
     req: NextApiRequest,
@@ -21,14 +26,14 @@ export default async function handler(
 ) {
 
     try {
-        await throwIfNoTeamAccess(req, res);
+        const { teamId } = await throwIfNoTeamAccess(req, res);
 
         switch (req.method) {
             case "GET":
-                await handlePOST(req, res);
+                await handleGET(req, res, teamId);
                 break;
             case "POST":
-                await handlePOST(req, res);
+                await handlePOST(req, res, teamId);
                 break;
             case "PUT":
                 break;
@@ -47,39 +52,106 @@ export default async function handler(
 
 }
 
+function validateOrder(order: any) {
+    if (
+        ("status" in order && typeof order.status === "string") &&
+        ("entregador" in order && typeof order.entregador === "string") &&
+        ("rua" in order && typeof order.rua === "string") &&
+        ("numero" in order && typeof order.numero === "string") &&
+        ("complemento" in order && typeof order.complemento === "string") &&
+        ("cep" in order && typeof order.cep === "string") &&
+        ("cidade" in order && typeof order.cidade === "string") &&
+        ("estado" in order && typeof order.estado === "string") &&
+        ("tel" in order && typeof order.tel === "string") &&
+        ("metodo_pag" in order && typeof order.metodo_pag === "string") &&
+        ("instrucoes" in order && typeof order.instrucoes === "string")
+    ) return order;
 
-async function handlePOST(req: NextApiRequest, res: NextApiResponse){
-   
-    const { user, team } = await getCurrentUserWithTeam(req, res);
-    if(!user || !team) throw new Error("no user or no team");
+    throw new Error("Invalid Order");
+}
+
+async function handleGET(req: NextApiRequest, res: NextApiResponse, teamId: string) {
+    // throw if not allowed
+
+    const orders = Array.from( await getOrders(teamId))
+
+    console.log("got orders successfuly");
+    console.log(orders);
+
+    return res.status(200).json({orders: orders});
+}
+
+
+async function handlePOST(req: NextApiRequest, res: NextApiResponse, teamId: string){
+
+    // throw if not allowed?
     
-    const {id, pedido, status, entregador} = req.body.order;
-    if (!id || !pedido || !status || !entregador) throw new Error("invalid object");
+    if (!req.body.order) throw new Error("Order not provided");
 
-    const order = {
-        id: id,
-        pedido: pedido,
-        status: status,
-        horario: new Date(),
-        entregador: entregador,
-        from: team.name,
-        managedBy: user.name,
-
-        teamId: team.id,
-        userId: user.id
-      
+    const testOrder = {
+        status: "ANDAMENTO",
+        entregador: "vini",
+        rua: "Alameda",
+        numero: "12",
+        complemento: "perto dali",
+        cep: "532",
+        cidade: "Natal",
+        estado: "RN",
+        tel: "6969",
+        metodo_pag: "cartao",
+        instrucoes: "sem tijolo"
     }
 
-    const newOrder = await createOrder(order);
+    const { 
+        status,
+        entregador,
+        rua,
+        numero,
+        complemento,
+        cep,
+        cidade,
+        estado,
+        tel,
+        metodo_pag,
+        instrucoes
+     } = validateOrder(testOrder) || validateOrder(req.body.order);
 
-    sendAudit({
-        action: "order.create",
-        crud: "c",
-        user: user,
-        team: team
-    })
+     if (!EOrderStatus[status as keyof typeof EOrderStatus])
+         throw new Error("Invalid Status type");
 
-    return res.json({data: newOrder});
+    // validate cep
+    // validate tel
+
+    const order = {
+       status: status,
+       horario: new Date(),
+       entregador: entregador,
+       rua: rua,
+       numero: numero,
+       complemento,
+       cep: cep,
+       cidade: cidade,
+       estado: estado,
+       tel: tel,
+       metodo_pag: metodo_pag,
+       instrucoes: instrucoes,
+
+       teamId: teamId
+    } as IOrder;
+
+   const newOrder = await createOrder(order);
+
+    // sendAudit({
+    //     action: "order.create",
+    //     crud: "c",
+    //     user: user,
+    //     team: team
+    //  })
+    
+    console.log("Order created!");
+    console.log(newOrder);
+    // console.log(`team name ==> ${team.name}`)
+    return res.json({data: newOrder, message: "order created!"});
 
 
 }
@@ -88,7 +160,6 @@ async function handleDELETE(req: NextApiRequest, res: NextApiResponse){
    
     // const user = await getCurrentUserWithTeam(req, res);
     // throwIfNotAllowed(user, "order", "create");
-    //
 
     await deleteOrder(req.body.orderId);
 
