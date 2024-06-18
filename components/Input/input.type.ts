@@ -1,7 +1,10 @@
 export default interface InputProps {
-  type: string;
-  name: string;
+  variant?: 'default';
+  size?: 'default' | 'sm' | 'md' | 'flex';
+  type?: string;
+  name?: string;
   placeholder?: string;
   value?: string;
+  className?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
