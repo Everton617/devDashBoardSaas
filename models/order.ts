@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { OrderStatus } from "@prisma/client";
+
 export enum EOrderStatus {
     BACLOG = "BACLOG" ,
     ANDAMENTO = "ANDAMENTO" ,
@@ -6,7 +8,9 @@ export enum EOrderStatus {
     CONCLUIDO = "CONCLUIDO" ,
 };
 export interface IOrder {
-    status: EOrderStatus,
+    id?: string,
+    pedido: string,
+    status: OrderStatus,
     horario: Date,
     entregador: string,
     rua: string,
@@ -18,48 +22,28 @@ export interface IOrder {
     tel: string,
     metodo_pag: string,
     instrucoes: string,
+    createdBy: string,
 
-    teamId: string
+    teamId: string,
+    userId: string
 };
 
 export async function createOrder(order: IOrder) {
-    const {
-        status,
-        horario,
-        entregador,
-        rua,
-        numero,
-        complemento,
-        cep,
-        cidade,
-        estado,
-        tel,
-        metodo_pag,
-        instrucoes,
-        teamId
-    } = order;
     return await prisma.order.create({
-        data: {
-            status: status,
-            horario: horario,
-            entregador: entregador,
-            rua: rua,
-            numero: numero,
-            complemento: complemento,
-            cep: cep,
-            cidade,
-            estado: estado,
-            tel: tel,
-            metodo_pag,
-            instrucoes: instrucoes,
-            teamId,
-        }
+        data: order
     });
 }
 
 export async function deleteOrder(orderId: string) {
     return await prisma.order.delete({
         where: {id: orderId}
+    })
+}
+
+export async function updateOrder(order: IOrder){
+    return await prisma.order.update({
+        where: {id: order.id},
+        data: order
     })
 }
 
