@@ -18,11 +18,11 @@ type ItemsType = {
   cep: string;
   cidade: string;
   estado: string;
-  telefone: number;
+  telefone: string;
   produtos: string[];
   quantidade: number;
   pagamento: string;
-  instructions: string[];
+  instructions: string;
   onDelete: (id: UniqueIdentifier) => void;
 };
 
