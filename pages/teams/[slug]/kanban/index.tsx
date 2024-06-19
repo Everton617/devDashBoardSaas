@@ -626,26 +626,18 @@ export default function Home() {
  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (/^\d*/.test(value)) {  
+    if (/^[0-9-]*$/.test(value)) {  
       setCep(value);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!/[0-9]-/.test(e.key)) {
+    if (!/[0-9-]/.test(e.key)) {
       e.preventDefault();
     }
   };
 
-  const handleSave = () => {
-    const cepNumber = Number(Cep);
-    if (!isNaN(cepNumber)) {
-      // Salvar o cepNumber no formato desejado
-      console.log('CEP salvo:', cepNumber);
-    } else {
-      console.log('CEP inválido:', Cep);
-    }
-  };
+
 
   return (
     <div className="mx-auto max-w-9xl py-10 ">
