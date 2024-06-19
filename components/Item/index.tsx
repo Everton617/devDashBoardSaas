@@ -15,7 +15,7 @@ type ItemsType = {
   rua: string;
   numero: number;
   complemento: string;
-  cep: number;
+  cep: string;
   cidade: string;
   estado: string;
   telefone: number;

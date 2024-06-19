@@ -30,7 +30,7 @@ import Modal from '@/components/Modal';
 import Input from '@/components/Input';
 import  Button  from '@/components/Button';
 import Select from '@/components/select';
-import { StatusPedido, StatusPedidoTitles } from '@/components/Container/statuspedidos';
+
 import { useTranslation } from 'next-i18next';
 import { useSession } from "next-auth/react";
 
@@ -48,7 +48,7 @@ type DNDType = {
     rua: string;
     numero: number;
     complemento: string;
-    cep: number;
+    cep: string;
     cidade: string;
     estado: string;
     telefone:number;
@@ -100,7 +100,7 @@ export default function Home() {
   const [Rua, setRua] = useState('');
   const [Numero, setNumero] = useState(0);
   const [Complemento, setComplemento] = useState('');
-  const [Cep, setCep] = useState(0);
+  const [Cep, setCep] = useState<string>('');
   const [Cidade, setCidade] = useState('');
   const [Estado, setEstado] = useState('');
   const [Pagamento, setPagamento] = useState('');
@@ -161,7 +161,7 @@ export default function Home() {
     setRua('');
     setNumero(0);
     setComplemento('');
-    setCep(0);
+    setCep('');
     setCidade('');
     setEstado('');
     setTelefone(0);
@@ -302,13 +302,13 @@ export default function Home() {
     return item.rua;
   };
 
-  const findItemNumero = (id: UniqueIdentifier | undefined) => {
+  const findItemNumero = (id: UniqueIdentifier | undefined): number | undefined => {
     const container = findValueOfItems(id, 'item');
-    if (!container) return '';
+    if (!container) return undefined;
     const item = container.items.find((item) => item.id === id);
-    if (!item) return '';
+    if (!item) return undefined;
     return item.numero;
-  };
+}
 
   const findItemComplemento = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
@@ -318,12 +318,12 @@ export default function Home() {
     return item.complemento;
   };
 
-  const findItemCep = (id: UniqueIdentifier | undefined): string  => {
+  const findItemCep = (id: UniqueIdentifier | undefined)  => {
     const container = findValueOfItems(id, 'item');
     if (!container) return '';
     const item = container.items.find((item) => item.id === id);
     if (!item) return '';
-    return item.cep.toString();
+    return item.cep;
   };
 
   const findItemCidade = (id: UniqueIdentifier | undefined) => {
@@ -342,35 +342,28 @@ export default function Home() {
     return item.estado;
   };
 
-  const findItemTelefone = (id: UniqueIdentifier | undefined) => {
+  const findItemTelefone = (id: UniqueIdentifier | undefined): number | undefined => {
     const container = findValueOfItems(id, 'item');
-    if (!container) return '';
+    if (!container) return undefined;
     const item = container.items.find((item) => item.id === id);
-    if (!item) return '';
+    if (!item) return undefined;
     return item.telefone;
   };
 
-  const findItemEntregador = (id: UniqueIdentifier | undefined) => {
-    const container = findValueOfItems(id, 'item');
-    if (!container) return '';
-    const item = container.items.find((item) => item.id === id);
-    if (!item) return '';
-    return item.entregador;
-  };
 
-  const findItemProdutos = (id: UniqueIdentifier | undefined) => {
+  const findItemProdutos = (id: UniqueIdentifier | undefined): string[] => {
     const container = findValueOfItems(id, 'item');
-    if (!container) return '';
+    if (!container) return [''];
     const item = container.items.find((item) => item.id === id);
-    if (!item) return '';
+    if (!item) return [''];
     return item.produtos;
   };
 
-  const findItemQuantidade = (id: UniqueIdentifier | undefined) => {
+  const findItemQuantidade = (id: UniqueIdentifier | undefined): number | undefined => {
     const container = findValueOfItems(id, 'item');
-    if (!container) return '';
+    if (!container) return undefined;
     const item = container.items.find((item) => item.id === id);
-    if (!item) return '';
+    if (!item) return undefined;
     return item.quantidade;
   };
 
@@ -382,11 +375,11 @@ export default function Home() {
     return item.pagamento;
   };
 
-  const findItemInstructions = (id: UniqueIdentifier | undefined) => {
+  const findItemInstructions = (id: UniqueIdentifier | undefined): string[] => {
     const container = findValueOfItems(id, 'item');
-    if (!container) return '';
+    if (!container) return [''];
     const item = container.items.find((item) => item.id === id);
-    if (!item) return '';
+    if (!item) return [''];
     return item.instructions;
   };
 
@@ -631,7 +624,28 @@ export default function Home() {
   }
 
  
-   
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {  
+      setCep(value);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!/[0-9]-/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const handleSave = () => {
+    const cepNumber = Number(Cep);
+    if (!isNaN(cepNumber)) {
+      // Salvar o cepNumber no formato desejado
+      console.log('CEP salvo:', cepNumber);
+    } else {
+      console.log('CEP inválido:', Cep);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-9xl py-10 ">
@@ -727,11 +741,12 @@ export default function Home() {
                 <label className='text-black block '>{t('CEP: ')}</label>
                   <Input
                     size='sm'
-                    type="number"
-                    placeholder="Insira o CEP do destinatário:"
+                    type="text"
+                    placeholder="Ex: 00000-000"
                     name="cep"
-                    value={Cep.toString()}
-                    onChange={(e) => setCep(Number(e.target.value))}
+                    value={Cep}
+                    onChange={handleChange}
+                    onKeyPress={handleKeyPress}
                   />
                 </div>
   
@@ -932,20 +947,19 @@ export default function Home() {
                 <Items
                 id={activeId}
                 pedido={findItemPedido(activeId)}
-              
                 horario={new Date(findItemHorario(activeId))}
                 entregador={findItemEntregador(activeId)}
-                entregador={findItemEntregador(activeId)}
                 rua={findItemRua(activeId)}
-                numero={findItemNumero(activeId)}
+                numero={findItemNumero(activeId) ?? 0}
                 complemento={findItemComplemento(activeId)}
                 cep={findItemCep(activeId)}
                 cidade={findItemCidade(activeId)}
                 estado={findItemEstado(activeId)}
-                telefone={findItemTelefone(activeId)}
+                telefone={findItemTelefone(activeId) ?? 0}
                 produtos={findItemProdutos(activeId)}
-                quantidade={findItemQuantidade(activeId)}
+                quantidade={findItemQuantidade(activeId) ?? 0}
                 pagamento={findItemPagamento(activeId)}
+                instructions={findItemInstructions(activeId)}
                 onDelete={handleDeletePedido} />
               )}
               {/* Drag Overlay For Container */}
@@ -961,11 +975,22 @@ export default function Home() {
 
                   {findContainerItems(activeId).map((i) => (
                     <Items
-                     key={i.id} 
-                     pedido={i.pedido} 
-                     id={i.id} 
-                     horario={i.horario}
-                     entregador={i.entregador}
+                    key={i.id} 
+                    id={i.id}
+                    pedido={i.pedido}
+                    horario={i.horario}
+                    entregador={i.entregador}
+                    rua={i.rua}
+                    numero={i.numero}
+                    complemento={i.complemento}
+                    cep={i.cep}
+                    cidade={i.cidade}
+                    estado={i.estado}
+                    telefone={i.telefone}
+                    produtos={i.produtos}
+                    quantidade={i.quantidade}
+                    pagamento={i.pagamento}
+                    instructions={i.instructions}
                      onDelete={handleDeletePedido}
 
                      />
