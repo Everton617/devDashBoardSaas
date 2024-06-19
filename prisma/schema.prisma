@@ -112,6 +112,8 @@ enum OrderStatus {
 
 model Order {
   id          String      @id @default(uuid())
+  pedido      String
+  quantidade  Int
   status      OrderStatus @default(BACKLOG)
   horario     DateTime
   entregador  String
@@ -124,16 +126,17 @@ model Order {
   tel         String
   metodo_pag  String
   instrucoes  String
+  createdBy   String
   teamId      String
+  userId      String
 
   OrderItem OrderItem[]
 
   team Team @relation(fields: [teamId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    String?
+  updatedAt DateTime @updatedAt
 }
 
 model OrderItem {
