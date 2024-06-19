@@ -626,7 +626,7 @@ export default function Home() {
  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value)) {  
+    if (/^\d*/.test(value)) {  
       setCep(value);
     }
   };
