@@ -35,12 +35,11 @@ import { useTranslation } from 'next-i18next';
 import { useSession } from "next-auth/react";
 
 import { toast } from 'react-hot-toast';
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { InputFilterSchema } from '@/lib/InputFilterSchema';
-import { useForm, SubmitHandler } from 'react-hook-form'
 
-type Inputs = z.infer<typeof InputFilterSchema>
+
+
+
+
 
 type DNDType = {
   id: UniqueIdentifier;
@@ -586,21 +585,7 @@ export default function Home() {
     }
   };
 
-  const [data, setData] = useState<Inputs>()
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    reset,
-    formState: { errors }
-  } = useForm<Inputs>({
-    resolver: zodResolver(InputFilterSchema)
-  })
-
-  const processForm: SubmitHandler<Inputs> = data => {
-    reset()
-    setData(data)
+  
 
   const onAddItem = async () => {
 
@@ -689,7 +674,7 @@ export default function Home() {
         <div className='p-1 pb-5  rounded-lg'>
           <h1 className="text-gray-800 text-2xl font-bold pt-8 pl-8 text-black">{t('Adicionar Pedido')}</h1>
         </div>
-    <form   onSubmit={handleSubmit(processForm)}>
+    <form >
   
           <div className="flex flex-col w-full items-start gap-y-5 overflow-auto max-h-[700px] pb-10">
             
