@@ -49,6 +49,23 @@ export async function updateOrder(order: IOrder){
 
 export async function getOrders(teamId: string) {
     return await prisma.order.findMany({
-        where: {teamId: teamId}
+        where: {teamId: teamId},
+        select: {
+            id: true,
+            pedido: true,
+            quantidade: true,
+            status: true,
+            entregador: true,
+            rua: true,
+            numero: true,
+            complemento: true,
+            cep: true,
+            cidade: true,
+            estado: true,
+            tel: true,
+            metodo_pag: true,
+            instrucoes: true,
+            createdBy: true,
+        }
     })
 }
