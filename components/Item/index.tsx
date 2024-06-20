@@ -7,22 +7,44 @@ import { TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'next-i18next';
 import { format } from 'date-fns';
 
-
-
 type ItemsType = {
   id: UniqueIdentifier;
   pedido: string;
   horario: Date;
   entregador: string;
+  rua: string;
+  numero: number;
+  complemento: string;
+  cep: string;
+  cidade: string;
+  estado: string;
+  telefone: string;
+  produtos: string[];
+  quantidade: number;
+  pagamento: string;
+  instructions: string;
   onDelete: (id: UniqueIdentifier) => void;
 };
 
-const Items = ({ id, pedido, horario, entregador, onDelete }: ItemsType) => {
-
+const Items = ({
+  id,
+  pedido,
+  horario,
+  entregador,
+  rua,
+  numero,
+  complemento,
+  cep,
+  cidade,
+  estado,
+  telefone,
+  produtos,
+  quantidade,
+  pagamento,
+  instructions,
+  onDelete,
+}: ItemsType) => {
   const { t } = useTranslation('common');
-  
-
-
 
   const deletarPedido = () => {
     onDelete(id);
@@ -56,10 +78,50 @@ const Items = ({ id, pedido, horario, entregador, onDelete }: ItemsType) => {
       )}
     >
       <div className="flex items-center justify-between">
-        <div className='flex flex-col' {...listeners}>
-          <div className='h-10'>{t('Pedido')}: {pedido}</div>
-          <div className='h-10'>{t('Horário')}: {format(horario, 'dd/MM/yyyy HH:mm')}</div>
-          <div className='h-10'>{t('Entregador')}: {entregador}</div>
+        <div className="flex flex-col" {...listeners}>
+          <div className="h-10">
+            {t('Pedido')}: {pedido}
+          </div>
+          <div className="h-10">
+            {t('Produtos')}: {produtos}
+          </div>
+          <div className="h-10">
+            {t('Quanntidade')}: {quantidade}
+          </div>
+          <div className="h-10">
+            {t('Horário')}: {format(horario, 'dd/MM/yyyy HH:mm')}
+          </div>
+          <div className="h-10">
+            {t('Entregador')}: {entregador}
+          </div>
+          <div className="h-10">
+            {t('Rua')}: {rua}
+          </div>
+          <div className="h-10">
+            {t('Número')}: {numero}
+          </div>
+          <div className="h-10">
+            {t('Complemento')}: {complemento}
+          </div>
+          <div className="h-10">
+            {t('CEP')}: {cep}
+          </div>
+          <div className="h-10">
+            {t('Cidade')}: {cidade}
+          </div>
+          <div className="h-10">
+            {t('Estado')}: {estado}
+          </div>
+          <div className="h-10">
+            {t('Telefone')}: {telefone}
+          </div>
+          <div className="h-10">
+            {t('Pagamento')}: {pagamento}
+          </div>
+          <div className="h-10">
+            {t('Instruções')}: {instructions}
+          </div>
+  
         </div>
         <div
           className="w-5 h-5 text-red-500 rounded hover:text-black"

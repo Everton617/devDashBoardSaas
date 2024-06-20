@@ -34,15 +34,34 @@ import Select from '@/components/select';
 import { useTranslation } from 'next-i18next';
 import { useSession } from "next-auth/react";
 
+import { toast } from 'react-hot-toast';
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { InputFilterSchema } from '@/lib/InputFilterSchema';
+import { useForm, SubmitHandler } from 'react-hook-form'
+
+type Inputs = z.infer<typeof InputFilterSchema>
+
 type DNDType = {
   id: UniqueIdentifier;
   title: string;
   items: {
     id: UniqueIdentifier;
     pedido: string;
-    status: string;
+    produtos: string[];
+    quantidade: number;
     horario: Date;
     entregador: string;
+    rua: string;
+    numero: number;
+    complemento: string;
+    cep: string;
+    cidade: string;
+    estado: string;
+    telefone:string;
+    pagamento: string;
+    instructions: string;
+    status: string;
     onDelete: (id: UniqueIdentifier) => void;
   }[];
 };
@@ -57,22 +76,22 @@ export default function Home() {
   const [containers, setContainers] = useState<DNDType[]>([
     {
       id: `container-${uuidv4()}`,
-      title: 'BackLog',
+      title: 'Backlog',
       items: [],
     },
     {
       id: `container-${uuidv4()}`,
-      title: 'Em Processo',
+      title: 'Andamento',
       items: [],
     },
     {
       id: `container-${uuidv4()}`,
-      title: 'Saiu para entrega',
+      title: 'Entrega',
       items: [],
     },
     {
       id: `container-${uuidv4()}`,
-      title: 'Concluído',
+      title: 'Concluído ',
       items: [],
     },
 
@@ -82,9 +101,21 @@ export default function Home() {
     useState<UniqueIdentifier>();
 
   const [Pedido, setPedido] = useState('');
-  const [Status, setStatus] = useState('');
-  const [Horario, setHorario] = useState('');
+  const [Produtos, setProdutos] = useState<string[]>([]);;
+  const [Quantidade, setQuantidade] = useState(0);
   const [Entregador, setEntregador] = useState('');
+  const [Rua, setRua] = useState('');
+  const [Numero, setNumero] = useState(0);
+  const [Complemento, setComplemento] = useState('');
+  const [Cep, setCep] = useState<string>('');
+  const [Cidade, setCidade] = useState('');
+  const [Estado, setEstado] = useState('');
+  const [Pagamento, setPagamento] = useState('');
+  const [Instructions, setInstructions] = useState('');
+  const [Telefone, setTelefone] = useState('');
+  const [Status, setStatus] = useState('');
+ 
+  
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
@@ -98,56 +129,12 @@ export default function Home() {
 
   const [activeContainerIndex] = useState<number | null>(null);
 
-
-
-
-  
-
-  const onAddItem = async () => {
-    if (!Pedido) return;
-    const id = `item-${uuidv4()}`;
-    const container = containers.find((item) => item.id === currentContainerId);
-    if (!container) return;
-    console.log(container.title);
-    container.items.push({
-      id,
-      pedido: Pedido,
-      status: Status,
-      horario: new Date(),
-      entregador: Entregador,
-      onDelete: handleDeletePedido,
-    });
-
-    setContainers([...containers]);
-    setPedido('');
-    setStatus('');
-    setHorario('');
-    setEntregador('');
-    setShowAddItemModal(false);
-
-    const order = {
-        id: id,
-        pedido: Pedido,
-        status: container.title,
-        entregador: Entregador,
+  const validateFields = () => {
+    if (!Pedido ||
+       !Produtos.length || Quantidade <= 0 || !Rua || Numero <= 0 || !Cep || !Cidade || !Telefone || !Entregador || !Pagamento) {
+      return false;
     }
-
-    const user = session ? session.user : "unknow";
-
-    try {
-        const response = await fetch(`/api/teams/${slug}/order`, {
-             method: "POST",
-             headers: {"content-type": "application/json"},
-             body: JSON.stringify({order: order, user: user})
-        })
-
-        const data = await response.json();
-        console.log("response ==> ", data);
-    } catch (error) {
-        console.log("error ==> ", error);
-    }
-   
-       
+    return true;
   };
 
   const handleDeletePedido = (id: UniqueIdentifier) => {
@@ -248,6 +235,96 @@ export default function Home() {
     if (!item) return '';
     return item.entregador;
   };
+
+  const findItemRua = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.rua;
+  };
+
+  const findItemNumero = (id: UniqueIdentifier | undefined): number | undefined => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return undefined;
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return undefined;
+    return item.numero;
+}
+
+  const findItemComplemento = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.complemento;
+  };
+
+  const findItemCep = (id: UniqueIdentifier | undefined)  => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.cep;
+  };
+
+  const findItemCidade = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.cidade;
+  };
+
+  const findItemEstado = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.estado;
+  };
+
+  const findItemTelefone = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.telefone;
+  };
+
+
+  const findItemProdutos = (id: UniqueIdentifier | undefined): string[] => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return [''];
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return [''];
+    return item.produtos;
+  };
+
+  const findItemQuantidade = (id: UniqueIdentifier | undefined): number | undefined => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return undefined;
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return undefined;
+    return item.quantidade;
+  };
+
+  const findItemPagamento = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.pagamento;
+  };
+
+  const findItemInstructions = (id: UniqueIdentifier | undefined) => {
+    const container = findValueOfItems(id, 'item');
+    if (!container) return '';
+    const item = container.items.find((item) => item.id === id);
+    if (!item) return '';
+    return item.instructions;
+  };
+
 
   const findContainerTitle = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'container');
@@ -489,9 +566,118 @@ export default function Home() {
   }
 
  
+  const handleChangeCep = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^[0-9-]*$/.test(value)) {  
+      setCep(value);
+    }
+  };
+
+  const handleChangeTelefone = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^[0-9-]*$/.test(value)) {  
+      setTelefone(value);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!/[0-9-]/.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const [data, setData] = useState<Inputs>()
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors }
+  } = useForm<Inputs>({
+    resolver: zodResolver(InputFilterSchema)
+  })
+
+  const processForm: SubmitHandler<Inputs> = data => {
+    reset()
+    setData(data)
+
+  const onAddItem = async () => {
+
+    if (!validateFields()) {
+      toast.error('Por Favor preencha todos os campos!')
+    }
+
+    if (!Pedido) return;
+    const id = `item-${uuidv4()}`;
+    const container = containers.find((item) => item.id === currentContainerId);
+    if (!container) return;
+    console.log(container.title);
+    container.items.push({
+      id,
+      pedido: Pedido,
+      produtos: Produtos,
+      quantidade: Quantidade,
+      horario: new Date(),
+      entregador: Entregador,
+      rua: Rua,
+      numero: Numero,
+      complemento: Complemento,
+      cep: Cep,
+      cidade: Cidade,
+      estado: Estado,
+      telefone: Telefone,
+      pagamento: Pagamento,
+      instructions: Instructions,
+      status: Status,
+      onDelete: handleDeletePedido,
+    });
+
+    setContainers([...containers]);
+    setPedido('');
+    setProdutos(['']);
+    setQuantidade(0);
+    setEntregador('');
+    setRua('');
+    setNumero(0);
+    setComplemento('');
+    setCep('');
+    setCidade('');
+    setEstado('');
+    setTelefone('');
+    setPagamento('');
+    setInstructions('');
+    setStatus('');
+    setShowAddItemModal(false);
+
+    const order = {
+        id: id,
+        pedido: Pedido,
+        status: container.title,
+        entregador: Entregador,
+    }
+
+    const user = session ? session.user : "unknow";
+
+    try {
+        const response = await fetch(`/api/teams/${slug}/order`, {
+             method: "POST",
+             headers: {"content-type": "application/json"},
+             body: JSON.stringify({order: order, user: user})
+        })
+
+        const data = await response.json();
+        console.log("response ==> ", data);
+    } catch (error) {
+        console.log("error ==> ", error);
+    }
    
+       
+  };
+
 
   return (
+    
     <div className="mx-auto max-w-9xl py-10 ">
       {/* Add Container Modal */}
       
@@ -500,43 +686,197 @@ export default function Home() {
       showModal={showAddItemModal}
       setShowModal={setShowAddItemModal}
       currentContainerId={currentContainerId}>
-
-        <div className="flex flex-col w-full items-start gap-y-4">
-          <h1 className="text-gray-800 text-2xl font-bold">{t('Adicionar Pedido')}</h1>
-          
-
-          <Input
-            type="text"
-            placeholder="Pedido"
-            name="pedido"
-            value={Pedido}
-            onChange={(e) => setPedido(e.target.value)}
-          />
-
-          <Input
-            type="text"
-            placeholder="Entregador"
-            name="entregador"
-            value={Entregador}
-            onChange={(e) => setEntregador(e.target.value)}
-          />
-
-          <Select
-            name="status"
-            value={Status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-             {containers
-              .filter(container => container.id === currentContainerId) // Filtrar apenas o contêiner atual
-              .map(container => (
-                <option key={container.id} value={container.title}>{container.title}</option>
-              ))
-            }
-          </Select>
-
-          <Button  variant='destructive'  onClick={onAddItem}>{t('Adicionar Pedido')}</Button>
+        <div className='p-1 pb-5  rounded-lg'>
+          <h1 className="text-gray-800 text-2xl font-bold pt-8 pl-8 text-black">{t('Adicionar Pedido')}</h1>
         </div>
-      </Modal>
+    <form   onSubmit={handleSubmit(processForm)}>
+  
+          <div className="flex flex-col w-full items-start gap-y-5 overflow-auto max-h-[700px] pb-10">
+            
+  
+            <div className='flex flex-col pl-8 pt-4'>
+              <label className='text-black'>{t('Pedido: ')}</label>
+              <Input
+                type="text"
+                size='flex'
+                placeholder="Insira o número do seu pedido"
+                name="pedido"
+                value={Pedido}
+                onChange={(e) => setPedido(e.target.value)}
+                
+              />
+            </div>
+  
+            <form className="grid grid-cols-2 gap-2">
+  
+            <div className="space-y-2 pl-8">
+            <label className='text-black'>{t('Produtos: ')}</label>
+              <Input
+                type="text"
+                size='flex'
+                placeholder=" Insira os produtos do pedido"
+                name="produtos"
+                value={Produtos.join(',')}
+                onChange={(e) => setProdutos([e.target.value])}
+              />
+            </div>
+            <div className="space-y-2 pl-7">
+             <label className='text-black'>{t('Quantidade: ')}</label>
+              <Input
+                type="number"
+                size='sm'
+                placeholder="Insira a quantidade do seu pedido"
+                name="quantidade"
+                value={Quantidade.toString()}
+                onChange={(e) => setQuantidade(Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-1 pt-1 pl-8">
+            <label className='text-black'>{t('Rua: ')}</label>
+              <Input
+                type="text"
+                size='flex'
+                placeholder=" Insira a Rua do destinatário"
+                name="rua"
+                value={Rua}
+                onChange={(e) => setRua(e.target.value)}
+              />
+            </div>
+  
+                <div className="space-y-2 pl-7">
+                <label className='text-black'>{t('Número: ')}</label>
+                  <Input
+                    size='sm'
+                    type="number"
+                    placeholder="Insira o número residencial do destinatário:"
+                    name="numero"
+                    value={Numero.toString()}
+                    onChange={(e) => setNumero(Number(e.target.value))}
+                  />
+                </div>
+  
+  
+                <div className="space-y-2 pt-2 pl-8">
+                <label className='text-black '>{t('Complemento: ')}</label>
+                  <Input
+                    size='flex'
+                    type="text"
+                    placeholder="Insira o complemento do destinatário"
+                    name="complemento"
+                    value={Complemento}
+                    onChange={(e) => setComplemento(e.target.value)}
+                  />
+                </div>
+  
+                <div className="space-y-2 pt-2 pl-7 ">
+                <label className='text-black block '>{t('CEP: ')}</label>
+                  <Input
+                    size='sm'
+                    type="text"
+                    placeholder="Ex: 00000-000"
+                    name="cep"
+                    value={Cep}
+                    onChange={handleChangeCep}
+                    onKeyPress={handleKeyPress}
+                  />
+                </div>
+  
+                <div className="space-y-2 pt-2 pl-8">
+                <label className='text-black'>{t('Cidade: ')}</label>
+                <Input
+                  size='flex'
+                  type="text"
+                  placeholder="Insira a cidade do destinatário"
+                  name="cidade"
+                  value={Cidade}
+                  onChange={(e) => setCidade(e.target.value)}
+                />
+  
+                </div>
+  
+                <div className="space-y-2 pt-2 pl-7 ">
+                <label className='text-black'>{t('Telefone: ')}</label>
+                  <Input
+                    type="number"
+                    variant='default'
+                    size='sm'
+                    placeholder="Ex: (00) 0000-0000"
+                    name="telefone"
+                    value={Telefone.toString()}
+                    onChange={handleChangeTelefone}
+                    onKeyPress={handleKeyPress}
+                  />
+  
+                </div>
+              <div className="space-y-2 pl-8">
+              <label className='text-black'>{t('Entregador: ')}</label>
+                <Input
+                  type="text"
+                  size='flex'
+                  placeholder="Insira o nome do entregador:"
+                  name="entregador"
+                  value={Entregador}
+                  onChange={(e) => setEntregador(e.target.value)}
+                />
+              </div>
+  
+              <div className="space-y-2 flex flex-col items-start pl-7 ">
+              <label className='text-black'>{t('Status: ')}</label>
+              <Select
+              name="status"
+              value={Status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+               {containers
+                .filter(container => container.id === currentContainerId) // Filtrar apenas o contêiner atual
+                .map(container => (
+                  <option key={container.id} value={container.title}>{container.title}</option>
+                ))
+              }
+            </Select>
+            </div>
+          </form>
+  
+          <form className='grid grid-cols-1 w-full'>
+            <div className="space-y-2 flex flex-col pl-8 w-full pr-10">
+                <label className='text-black'>{t('Instruções Especiais: ')}</label>
+                <textarea
+                  className="textarea textarea-bordered bg-gray-100 text-black "
+                  placeholder="Caso exista, informe alguma instrução"
+                  name='instructions'
+                  value={Instructions}
+                  onChange={(e) => setInstructions(e.target.value)}
+                   ></textarea>
+              </div>
+  
+            <div className="space-y-2 pl-8 pt-5">
+            <select
+             className="select w-full max-w-xs bg-gray-100 text-black rounded-lg"
+             name='pagamento'
+             onChange={(e) => setPagamento(e.target.value)}
+             >
+              <option disabled selected>{t('Selecione a forma de pagamento')}</option>
+              <option value={"credito"}>{t('Cartão de Crédito')}</option>
+              <option value={"debito"}>{t('Cartão de Débito')}</option>
+              <option value={"pix"}>{t('PIX')}</option>
+            </select>
+            </div>
+          </form>
+  
+          
+      </div>
+
+          <div className='p-5 flex justify-end'>
+            <Button
+                variant='destructive'
+                onClick={onAddItem}>
+                {t('Adicionar Pedido')}</Button>
+          </div>
+  
+    </form>
+  
+  </Modal>
+
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">{t('Gestor de Pedidos')}</h1>
         <Button variant='destructive' onClick={() => {
@@ -608,6 +948,7 @@ export default function Home() {
                           </div>
                         </div>
                     </Modal>
+                    
                       {container.items.map((i) => (
                         <Items 
                         key={i.id} 
@@ -615,6 +956,17 @@ export default function Home() {
                         pedido={i.pedido}
                         horario={i.horario}
                         entregador={i.entregador}
+                        rua={i.rua}
+                        numero={i.numero}
+                        complemento={i.complemento}
+                        cep={i.cep}
+                        cidade={i.cidade}
+                        estado={i.estado}
+                        telefone={i.telefone}
+                        produtos={i.produtos}
+                        quantidade={i.quantidade}
+                        pagamento={i.pagamento}
+                        instructions={i.instructions}
                         onDelete={handleDeletePedido} 
                         />
                       ))}
@@ -629,9 +981,19 @@ export default function Home() {
                 <Items
                 id={activeId}
                 pedido={findItemPedido(activeId)}
-              
                 horario={new Date(findItemHorario(activeId))}
                 entregador={findItemEntregador(activeId)}
+                rua={findItemRua(activeId)}
+                numero={findItemNumero(activeId) ?? 0}
+                complemento={findItemComplemento(activeId)}
+                cep={findItemCep(activeId)}
+                cidade={findItemCidade(activeId)}
+                estado={findItemEstado(activeId)}
+                telefone={findItemTelefone(activeId)}
+                produtos={findItemProdutos(activeId)}
+                quantidade={findItemQuantidade(activeId) ?? 0}
+                pagamento={findItemPagamento(activeId)}
+                instructions={findItemInstructions(activeId)}
                 onDelete={handleDeletePedido} />
               )}
               {/* Drag Overlay For Container */}
@@ -647,11 +1009,22 @@ export default function Home() {
 
                   {findContainerItems(activeId).map((i) => (
                     <Items
-                     key={i.id} 
-                     pedido={i.pedido} 
-                     id={i.id} 
-                     horario={i.horario}
-                     entregador={i.entregador}
+                    key={i.id} 
+                    id={i.id}
+                    pedido={i.pedido}
+                    horario={i.horario}
+                    entregador={i.entregador}
+                    rua={i.rua}
+                    numero={i.numero}
+                    complemento={i.complemento}
+                    cep={i.cep}
+                    cidade={i.cidade}
+                    estado={i.estado}
+                    telefone={i.telefone}
+                    produtos={i.produtos}
+                    quantidade={i.quantidade}
+                    pagamento={i.pagamento}
+                    instructions={i.instructions}
                      onDelete={handleDeletePedido}
 
                      />
