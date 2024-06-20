@@ -152,6 +152,26 @@
   </details>
 
   <details>
-    <summary><h2>DELETE</summary>
+  <summary><h2>DELETE</summary>
+
+  ## Exemplo de Requisição: 
+  
+  ```javascript
+  const router = useRouter();
+  const { slug } = router.query;  // pegando o slug do 'team'
+
+  const orderId = "4b751b06-bc6c-498d-aa92-2c7f1678a595"
+  // se o id no front estiver como "item-4b751b06-bc6c-498d-aa92-2c7f1678a595"
+  // vc pode fazer:
+  // const id = orderId.replace("item-", "")
+  // e passar: JSON.stringify({orderId: id})
+  
+  // enviando o id pedido para deletá-lo no backend
+  const response = await fetch(`/api/teams/${slug}/order`, {
+       method: "DELETE",
+       headers: {"content-type": "application/json"},
+       body: JSON.stringify({orderId: orderId})
+  });
+  ```
   </details>
   
