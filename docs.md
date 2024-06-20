@@ -88,6 +88,9 @@
        body: JSON.stringify({order})
   });
   ```
+  > [!NOTE]
+  > para criação de pedidos, não é necessário passar o campo `id`, pois o banco gera um uuid() automaticamente
+ 
   retorno da requesição, quando bem sucedida:
   
   ```bash
