@@ -1,7 +1,8 @@
 # Order
   <details>
   <summary><h2>GET</h2></summary>
-  Exemplo de Requisição: 
+    
+  ## Exemplo de Requisição: 
   
   ```javascript
   const router = useRouter();
@@ -13,7 +14,7 @@
        headers: {"content-type": "application/json"},
   });
   ```
-  Retorno da requisição, quando bem sucedida:
+  ## Retorno da requisição, quando bem sucedida:
   ```bash
     [
       {
@@ -58,7 +59,7 @@
   <details>
   <summary><h2>POST</h2></summary>
 
-  Exemplo de Requisição: 
+  ## Exemplo de Requisição: 
   
   ```javascript
   const router = useRouter();
@@ -88,10 +89,11 @@
        body: JSON.stringify({order})
   });
   ```
-  > [!NOTE]
-  > para criação de pedidos, não é necessário passar o campo `id`, pois o banco gera um uuid() automaticamente
+
+> [!NOTE] 
+> para criação de pedidos, não é necessário passar o campo `id`, pois o banco gera um uuid() automaticamente
  
-  retorno da requesição, quando bem sucedida:
+  ## Retorno da requesição, quando bem sucedida:
   
   ```bash
   {
