@@ -13,7 +13,7 @@ const InputVariants = cva(
       size: {
         default: 'w-0',
         sm: 'w-22',
-        flex: 'w-60',
+        flex: 'w-80 rounded-lg',
         md: 'w-full h-40'
       },
     },

@@ -2,7 +2,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
-import { PencilIcon } from '@heroicons/react/24/outline';
+import { PlusIcon,PencilIcon } from '@heroicons/react/24/outline';
 import Button from '../Button';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { useTranslation } from 'next-i18next';
@@ -32,6 +32,10 @@ const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex
       type: 'item',
     },
   });
+
+  const showItemModal = () => {
+    onAddItem();
+  };
 
   const showModal = () => {
     onClickEdit();
@@ -81,9 +85,11 @@ const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex
         <div className="flex flex-col gap-y-1">
           <h1 className="text-gray-700 text-lg">{title}</h1>
         </div>
-        <div
-          className={clsx('w-5 h-5 rounded hover:text-black')}>
-          <PencilIcon className={clsx('w-full h-full', iconColor)} onClick={showModal} />
+        <div className={clsx('w-12 h-10 rounded hover:text-black ')}>
+          <div className='w-full flex flex-row'>
+            <PlusIcon className={clsx('w-full h-full', iconColor)} onClick={showItemModal} />
+            <PencilIcon className={clsx('w-full h-full', iconColor)} onClick={showModal} />
+          </div>
         </div>
       </div>
 

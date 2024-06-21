@@ -1,11 +1,8 @@
 import { z } from 'zod'
 
 export const FormDataSchema = z.object({
-  pedido: z.string().nonempty('Name is required.'),
-  produtos: z
-    .string()
-    .nonempty('Message is required.')
-    .min(2, { message: 'Message must be at least 6 characters.' }),
+  pedido: z.string().nonempty('O número do pedido é obrigatório.'),
+  produtos: z.string().nonempty('Os produtos são obrigatórios.'),
   quantidade: z.string()
     .refine((val) => !isNaN(Number(val)), {
       message: "A quantidade deve ser um número",
@@ -30,4 +27,5 @@ export const FormDataSchema = z.object({
   estado: z.string().nonempty('O estado é obrigatório.'),
   entregador: z.string().nonempty('O nome do entregador é obrigatório.'),
   pagamento: z.string().nonempty('A forma de pagamento é obrigatória.'),
+  instructions: z.string().optional(),
 })

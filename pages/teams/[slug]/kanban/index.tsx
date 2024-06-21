@@ -108,19 +108,7 @@ export default function Home() {
   const [currentContainerId, setCurrentContainerId] =
     useState<UniqueIdentifier>();
 
-  const [Pedido, setPedido] = useState('');
-  const [Produtos, setProdutos] = useState('');
-  const [Quantidade, setQuantidade] = useState(0);
-  const [Entregador, setEntregador] = useState('');
-  const [Rua, setRua] = useState('');
-  const [Numero, setNumero] = useState(0);
-  const [Complemento, setComplemento] = useState('');
-  const [Cep, setCep] = useState<string>('');
-  const [Cidade, setCidade] = useState('');
-  const [Estado, setEstado] = useState('');
-  const [Pagamento, setPagamento] = useState('');
-  const [Instructions, setInstructions] = useState('');
-  const [Telefone, setTelefone] = useState('');
+
   const [Status, setStatus] = useState('');
  
   
@@ -153,18 +141,13 @@ export default function Home() {
     console.log(data)
     reset()
     setData(data)
+    onAddItem(data)
+    setShowAddItemModal(false);
   }
 
 
   const [activeContainerIndex] = useState<number | null>(null);
 
-  const validateFields = () => {
-    if (!Pedido ||
-       !Produtos.length || Quantidade <= 0 || !Rua || Numero <= 0 || !Cep || !Cidade || !Telefone || !Entregador || !Pagamento) {
-      return false;
-    }
-    return true;
-  };
 
   const handleDeletePedido = (id: UniqueIdentifier) => {
     setItemIdToDelete(id); // Definir o item a ser excluído
@@ -595,99 +578,79 @@ export default function Home() {
   }
 
  
-  const handleChangeCep = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (/^[0-9-]*$/.test(value)) {  
-      setCep(value);
-    }
-  };
-
-  const handleChangeTelefone = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (/^[0-9-]*$/.test(value)) {  
-      setTelefone(value);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!/[0-9-]/.test(e.key)) {
-      e.preventDefault();
-    }
-  };
 
   
 
-  const onAddItem = async () => {
+  const onAddItem = async (data: Inputs) => {
 
-    if (!validateFields()) {
-      toast.error('Por Favor preencha todos os campos!')
-    }
+    console.log('Adding item:', data);
+    const {
+      pedido,
+      produtos,
+      quantidade,
+      entregador,
+      rua,
+      numero,
+      complemento,
+      cep,
+      cidade,
+      estado,
+      telefone,
+      pagamento,
+      instructions,
+    } = data;
 
-    if (!Pedido) return;
     const id = `item-${uuidv4()}`;
     const container = containers.find((item) => item.id === currentContainerId);
-    if (!container) return;
-    console.log(container.title);
+    if (!container) {
+      console.error('Container not found');
+      return;
+    }
+
+    console.log('Container title:', container.title);
     container.items.push({
       id,
-      pedido: Pedido,
-      produtos: Produtos,
-      quantidade: Quantidade,
+      pedido,
+      produtos,
+      quantidade,
       horario: new Date(),
-      entregador: Entregador,
-      rua: Rua,
-      numero: Numero,
-      complemento: Complemento,
-      cep: Cep,
-      cidade: Cidade,
-      estado: Estado,
-      telefone: Telefone,
-      pagamento: Pagamento,
-      instructions: Instructions,
-      status: Status,
+      entregador,
+      rua,
+      numero,
+      complemento,
+      cep,
+      cidade,
+      estado,
+      telefone,
+      pagamento,
+      instructions: instructions ?? '',
+      status,
       onDelete: handleDeletePedido,
     });
 
-    setContainers([...containers]);
-    setPedido('');
-    setProdutos('');
-    setQuantidade(0);
-    setEntregador('');
-    setRua('');
-    setNumero(0);
-    setComplemento('');
-    setCep('');
-    setCidade('');
-    setEstado('');
-    setTelefone('');
-    setPagamento('');
-    setInstructions('');
-    setStatus('');
-    setShowAddItemModal(false);
-
     const order = {
-        id: id,
-        pedido: Pedido,
-        status: container.title,
-        entregador: Entregador,
-    }
+      id,
+      pedido,
+      status: container.title,
+      entregador,
+    };
 
-    const user = session ? session.user : "unknow";
+    const user = session ? session.user : "unknown";
 
     try {
-        const response = await fetch(`/api/teams/${slug}/order`, {
-             method: "POST",
-             headers: {"content-type": "application/json"},
-             body: JSON.stringify({order: order, user: user})
-        })
+      const response = await fetch(`/api/teams/${slug}/order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order, user }),
+      });
 
-        const data = await response.json();
-        console.log("response ==> ", data);
+      const data = await response.json();
+      console.log("response ==> ", data);
     } catch (error) {
-        console.log("error ==> ", error);
+      console.error("error ==> ", error);
     }
-   
-       
+
+    
   };
 
 
@@ -695,7 +658,214 @@ export default function Home() {
     
     <div className="mx-auto max-w-9xl py-10 ">
       {/* Add Container Modal */}
-      
+      <Modal
+        showModal={showAddItemModal}
+        setShowModal={setShowAddItemModal}
+        >
+        <div className='p-1 pb-5  rounded-lg'>
+          <h1 className="text-gray-800 text-2xl font-bold pt-8 pl-8 text-black">{t('Adicionar Pedido')}</h1>
+        </div>
+        <form onSubmit={handleSubmit(processForm)}
+          className='flex flex-1 flex-col gap-4 w-full'>
+
+          <div className="flex flex-col w-full items-start gap-y-5 overflow-auto max-h-[700px] pb-10">
+
+
+            <div className='flex flex-col pl-8 pt-4 w-full'>
+              <label className='text-black '>{t('Pedido: ')}</label>
+              <input
+                placeholder="Insira o número do seu pedido"
+                className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-80'
+                {...register('pedido')}
+              />
+              {errors.pedido?.message && (
+                <p className='text-sm text-red-400'>{errors.pedido.message}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 ">
+
+              <div className="space-y-2 pl-8 ">
+                <label className='text-black '>{t('Produtos: ')}</label>
+                <input
+                  placeholder='produtos'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 '
+                  {...register('produtos')}
+                />
+                {errors.produtos?.message && (
+                  <p className='text-sm text-red-400'>{errors.produtos.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pl-7 ">
+                <label className='text-black'>{t('Quantidade: ')}</label>
+                <input
+                  placeholder='Quantidade'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
+                  {...register('quantidade')}
+                />
+                {errors.quantidade?.message && (
+                  <p className='text-sm text-red-400'>{errors.quantidade.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-1 pt-1 pl-8 ">
+                <label className='text-black block'>{t('Rua: ')}</label>
+                <input
+                  placeholder='rua'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('rua')}
+                />
+                {errors.rua?.message && (
+                  <p className='text-sm text-red-400'>{errors.rua.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pl-7">
+                <label className='text-black'>{t('Número: ')}</label>
+                <input
+                  placeholder='numero'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
+                  {...register('numero')}
+                />
+                {errors.numero?.message && (
+                  <p className='text-sm text-red-400'>{errors.numero.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-8 p-2">
+                <label className='text-black '>{t('Complemento: ')}</label>
+                <input
+                  placeholder='complemento'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('complemento')}
+                />
+                {errors.complemento?.message && (
+                  <p className='text-sm text-red-400'>{errors.complemento.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-7">
+                <label className='text-black block '>{t('CEP: ')}</label>
+                <input
+                  placeholder='cep'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
+                  {...register('cep')}
+                />
+                {errors.cep?.message && (
+                  <p className='text-sm text-red-400'>{errors.cep.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-8">
+                <label className='text-black block'>{t('Cidade: ')}</label>
+                <input
+                  placeholder='cidade'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('cidade')}
+                />
+                {errors.cidade?.message && (
+                  <p className='text-sm text-red-400'>{errors.cidade.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-7 ">
+                <label className='text-black'>{t('Telefone: ')}</label>
+                <input
+                  placeholder='telefone'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
+                  {...register('telefone')}
+                />
+                {errors.telefone?.message && (
+                  <p className='text-sm text-red-400'>{errors.telefone.message}</p>
+                )}
+
+              </div>
+
+              <div className="space-y-2 pt-2 pl-8">
+                <label className='text-black block'>{t('Estado: ')}</label>
+                <input
+                  placeholder='Estado'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('estado')}
+                />
+                {errors.estado?.message && (
+                  <p className='text-sm text-red-400'>{errors.estado.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pl-8">
+                <label className='text-black'>{t('Entregador: ')}</label>
+                <input
+                  placeholder='entregador'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
+                  {...register('entregador')}
+                />
+                {errors.entregador?.message && (
+                  <p className='text-sm text-red-400'>{errors.entregador.message}</p>
+                )}
+              </div>
+              
+
+              <div className="space-y-2 flex flex-col items-start pl-7 ">
+                <label className='text-black'>{t('Status: ')}</label>
+                <Select
+                  name="status"
+                  value={Status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  {containers
+                    .map(container => (
+                      <option key={container.id} value={container.title}>{container.title}</option>
+                    ))
+                  }
+                </Select>
+              </div>
+            </div>
+
+            <div className='grid grid-cols-1 w-full'>
+              <div className="space-y-2 flex flex-col pl-8 w-full pr-10">
+                <label className='text-black'>{t('Instruções Especiais: ')}</label>
+                <textarea
+                  className="textarea textarea-bordered bg-gray-100 text-black "
+                  placeholder="Caso exista, informe alguma instrução"
+                  {...register('instructions')}
+                ></textarea>
+              </div>
+
+              <div className="space-y-2 pl-8 pt-5">
+                <select
+                  className="select w-full max-w-xs bg-gray-100 text-black rounded-lg"
+                  {...register('pagamento')}
+                  defaultValue=""
+                >
+                  <option value="" disabled selected>{t('Selecione a forma de pagamento')}</option>
+                  <option value={"credito"}>{t('Cartão de Crédito')}</option>
+                  <option value={"debito"}>{t('Cartão de Débito')}</option>
+                  <option value={"pix"}>{t('PIX')}</option>
+                </select>
+                {errors.pagamento?.message && (
+                  <p className='text-sm text-red-400'>{errors.pagamento.message}</p>
+                )}
+              </div>
+
+
+
+            </div>
+
+
+          </div>
+
+          <div className='p-5 flex justify-end'>
+            <Button
+              variant='destructive'
+              >
+              {t('Adicionar Pedido')}</Button>
+          </div>
+
+        </form>
+
+      </Modal>
       {/* Add Item Modal */}
       <Modal
         showModal={showAddItemModal}
@@ -869,9 +1039,7 @@ export default function Home() {
                 <textarea
                   className="textarea textarea-bordered bg-gray-100 text-black "
                   placeholder="Caso exista, informe alguma instrução"
-                  name='instructions'
-                  value={Instructions}
-                  onChange={(e) => setInstructions(e.target.value)}
+                  {...register('instructions')}
                 ></textarea>
               </div>
 
@@ -911,12 +1079,6 @@ export default function Home() {
 
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">{t('Gestor de Pedidos')}</h1>
-        <Button variant='destructive' onClick={() => {
-          onAddItem();
-          setShowAddItemModal(true);
-        }}>
-          {t('Adicionar Pedido')}
-        </Button>
       </div>
       <div className="mt-10">
         <div className="grid grid-cols-4 gap-6">
@@ -950,9 +1112,10 @@ export default function Home() {
                       showModal={showTitleModal}
                       setShowModal={setShowTitleModal}
                       >
-                        <div className="flex flex-col w-full items-start gap-y-4">
+                        <div className="flex flex-col w-full items-center gap-y-4 p-10">
                         <h1 className="text-gray-800 text-3xl font-bold">{t('Alterar título')}</h1>
                             <Input
+                            size='flex'
                             name='input'
                             type="text"
                             placeholder="Novo Título"
@@ -969,14 +1132,14 @@ export default function Home() {
                       showModal={showDeleteConfirmation}
                       setShowModal={setShowDeleteConfirmation}
                       >
-                        <div className="flex flex-col w-full items-start gap-y-4">
+                        <div className="flex flex-col w-full items-center rounded-lg p-10 gap-2">
                           <h1 className="text-gray-800 text-3xl font-bold">
-                          {t('Confirmar Exclusão ?')}
+                          {t('Confirmar Exclusão')}
                           </h1>
                           <p>{t('Deseja mesmo excluir este pedido?')}</p>
-                          <div className="flex gap-x-4">
-                            <Button className="bg-red" onClick={handleConfirmDeleteItem}>{t('Sim')}</Button>
-                            <Button className="bg-red"onClick={handleCancelDeleteItem}>{t('Cancelar')}</Button>
+                          <div className="flex gap-x-5 pt-5">
+                            <Button className="bg-error h-8 hover:bg-red-700" onClick={handleConfirmDeleteItem}>{t('Sim')}</Button>
+                            <Button className="bg-error h-8 hover:bg-red-700"onClick={handleCancelDeleteItem}>{t('Cancelar')}</Button>
                           </div>
                         </div>
                     </Modal>

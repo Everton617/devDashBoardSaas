@@ -86,7 +86,7 @@ const Items = ({
             {t('Produtos')}: {produtos}
           </div>
           <div className="h-10">
-            {t('Quanntidade')}: {quantidade}
+            {t('Quantidade')}: {quantidade}
           </div>
           <div className="h-10">
             {t('Horário')}: {format(horario, 'dd/MM/yyyy HH:mm')}
