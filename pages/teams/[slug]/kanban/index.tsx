@@ -39,6 +39,15 @@ import { toast } from 'react-hot-toast';
 
 
 
+import { useForm, SubmitHandler } from 'react-hook-form'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+import { FormDataSchema } from '@/lib/FormDataSchema'
+
+type Inputs = z.infer<typeof FormDataSchema>
+
 
 
 type DNDType = {
@@ -47,7 +56,7 @@ type DNDType = {
   items: {
     id: UniqueIdentifier;
     pedido: string;
-    produtos: string[];
+    produtos: string;
     quantidade: number;
     horario: Date;
     entregador: string;
@@ -100,7 +109,7 @@ export default function Home() {
     useState<UniqueIdentifier>();
 
   const [Pedido, setPedido] = useState('');
-  const [Produtos, setProdutos] = useState<string[]>([]);;
+  const [Produtos, setProdutos] = useState('');
   const [Quantidade, setQuantidade] = useState(0);
   const [Entregador, setEntregador] = useState('');
   const [Rua, setRua] = useState('');
@@ -124,6 +133,27 @@ export default function Home() {
   const [itemIdToDelete, setItemIdToDelete] = useState<UniqueIdentifier | null>(null);
  
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+
+  const [data, setData] = useState<Inputs>()
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors }
+  } = useForm<Inputs>({
+    resolver: zodResolver(FormDataSchema)
+  })
+
+  //   console.log(watch('name'))
+  //   console.log('rendering')
+
+  const processForm: SubmitHandler<Inputs> = data => {
+    console.log(data)
+    reset()
+    setData(data)
+  }
 
 
   const [activeContainerIndex] = useState<number | null>(null);
@@ -292,11 +322,11 @@ export default function Home() {
   };
 
 
-  const findItemProdutos = (id: UniqueIdentifier | undefined): string[] => {
+  const findItemProdutos = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
-    if (!container) return [''];
+    if (!container) return '';
     const item = container.items.find((item) => item.id === id);
-    if (!item) return [''];
+    if (!item) return '';
     return item.produtos;
   };
 
@@ -620,7 +650,7 @@ export default function Home() {
 
     setContainers([...containers]);
     setPedido('');
-    setProdutos(['']);
+    setProdutos('');
     setQuantidade(0);
     setEntregador('');
     setRua('');
@@ -667,163 +697,174 @@ export default function Home() {
       {/* Add Container Modal */}
       
       {/* Add Item Modal */}
-      <Modal 
-      showModal={showAddItemModal}
-      setShowModal={setShowAddItemModal}
-      currentContainerId={currentContainerId}>
+      <Modal
+        showModal={showAddItemModal}
+        setShowModal={setShowAddItemModal}
+        currentContainerId={currentContainerId}>
         <div className='p-1 pb-5  rounded-lg'>
           <h1 className="text-gray-800 text-2xl font-bold pt-8 pl-8 text-black">{t('Adicionar Pedido')}</h1>
         </div>
-    <form >
-  
+        <form onSubmit={handleSubmit(processForm)}
+          className='flex flex-1 flex-col gap-4 w-full'>
+
           <div className="flex flex-col w-full items-start gap-y-5 overflow-auto max-h-[700px] pb-10">
-            
-  
-            <div className='flex flex-col pl-8 pt-4'>
-              <label className='text-black'>{t('Pedido: ')}</label>
-              <Input
-                type="text"
-                size='flex'
+
+
+            <div className='flex flex-col pl-8 pt-4 w-full'>
+              <label className='text-black '>{t('Pedido: ')}</label>
+              <input
                 placeholder="Insira o número do seu pedido"
-                name="pedido"
-                value={Pedido}
-                onChange={(e) => setPedido(e.target.value)}
-                
+                className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-80'
+                {...register('pedido')}
               />
+              {errors.pedido?.message && (
+                <p className='text-sm text-red-400'>{errors.pedido.message}</p>
+              )}
             </div>
-  
-            <form className="grid grid-cols-2 gap-2">
-  
-            <div className="space-y-2 pl-8">
-            <label className='text-black'>{t('Produtos: ')}</label>
-              <Input
-                type="text"
-                size='flex'
-                placeholder=" Insira os produtos do pedido"
-                name="produtos"
-                value={Produtos.join(',')}
-                onChange={(e) => setProdutos([e.target.value])}
-              />
-            </div>
-            <div className="space-y-2 pl-7">
-             <label className='text-black'>{t('Quantidade: ')}</label>
-              <Input
-                type="number"
-                size='sm'
-                placeholder="Insira a quantidade do seu pedido"
-                name="quantidade"
-                value={Quantidade.toString()}
-                onChange={(e) => setQuantidade(Number(e.target.value))}
-              />
-            </div>
-            <div className="space-y-1 pt-1 pl-8">
-            <label className='text-black'>{t('Rua: ')}</label>
-              <Input
-                type="text"
-                size='flex'
-                placeholder=" Insira a Rua do destinatário"
-                name="rua"
-                value={Rua}
-                onChange={(e) => setRua(e.target.value)}
-              />
-            </div>
-  
-                <div className="space-y-2 pl-7">
-                <label className='text-black'>{t('Número: ')}</label>
-                  <Input
-                    size='sm'
-                    type="number"
-                    placeholder="Insira o número residencial do destinatário:"
-                    name="numero"
-                    value={Numero.toString()}
-                    onChange={(e) => setNumero(Number(e.target.value))}
-                  />
-                </div>
-  
-  
-                <div className="space-y-2 pt-2 pl-8">
-                <label className='text-black '>{t('Complemento: ')}</label>
-                  <Input
-                    size='flex'
-                    type="text"
-                    placeholder="Insira o complemento do destinatário"
-                    name="complemento"
-                    value={Complemento}
-                    onChange={(e) => setComplemento(e.target.value)}
-                  />
-                </div>
-  
-                <div className="space-y-2 pt-2 pl-7 ">
-                <label className='text-black block '>{t('CEP: ')}</label>
-                  <Input
-                    size='sm'
-                    type="text"
-                    placeholder="Ex: 00000-000"
-                    name="cep"
-                    value={Cep}
-                    onChange={handleChangeCep}
-                    onKeyPress={handleKeyPress}
-                  />
-                </div>
-  
-                <div className="space-y-2 pt-2 pl-8">
-                <label className='text-black'>{t('Cidade: ')}</label>
-                <Input
-                  size='flex'
-                  type="text"
-                  placeholder="Insira a cidade do destinatário"
-                  name="cidade"
-                  value={Cidade}
-                  onChange={(e) => setCidade(e.target.value)}
+
+            <div className="grid grid-cols-2 gap-4 ">
+
+              <div className="space-y-2 pl-8 ">
+                <label className='text-black '>{t('Produtos: ')}</label>
+                <input
+                  placeholder='produtos'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 '
+                  {...register('produtos')}
                 />
-  
-                </div>
-  
-                <div className="space-y-2 pt-2 pl-7 ">
-                <label className='text-black'>{t('Telefone: ')}</label>
-                  <Input
-                    type="number"
-                    variant='default'
-                    size='sm'
-                    placeholder="Ex: (00) 0000-0000"
-                    name="telefone"
-                    value={Telefone.toString()}
-                    onChange={handleChangeTelefone}
-                    onKeyPress={handleKeyPress}
-                  />
-  
-                </div>
-              <div className="space-y-2 pl-8">
-              <label className='text-black'>{t('Entregador: ')}</label>
-                <Input
-                  type="text"
-                  size='flex'
-                  placeholder="Insira o nome do entregador:"
-                  name="entregador"
-                  value={Entregador}
-                  onChange={(e) => setEntregador(e.target.value)}
-                />
+                {errors.produtos?.message && (
+                  <p className='text-sm text-red-400'>{errors.produtos.message}</p>
+                )}
               </div>
-  
+
+              <div className="space-y-2 pl-7 ">
+                <label className='text-black'>{t('Quantidade: ')}</label>
+                <input
+                  placeholder='Quantidade'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
+                  {...register('quantidade')}
+                />
+                {errors.quantidade?.message && (
+                  <p className='text-sm text-red-400'>{errors.quantidade.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-1 pt-1 pl-8 ">
+                <label className='text-black block'>{t('Rua: ')}</label>
+                <input
+                  placeholder='rua'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('rua')}
+                />
+                {errors.rua?.message && (
+                  <p className='text-sm text-red-400'>{errors.rua.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pl-7">
+                <label className='text-black'>{t('Número: ')}</label>
+                <input
+                  placeholder='numero'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
+                  {...register('numero')}
+                />
+                {errors.numero?.message && (
+                  <p className='text-sm text-red-400'>{errors.numero.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-8 p-2">
+                <label className='text-black '>{t('Complemento: ')}</label>
+                <input
+                  placeholder='complemento'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('complemento')}
+                />
+                {errors.complemento?.message && (
+                  <p className='text-sm text-red-400'>{errors.complemento.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-7">
+                <label className='text-black block '>{t('CEP: ')}</label>
+                <input
+                  placeholder='cep'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
+                  {...register('cep')}
+                />
+                {errors.cep?.message && (
+                  <p className='text-sm text-red-400'>{errors.cep.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-8">
+                <label className='text-black block'>{t('Cidade: ')}</label>
+                <input
+                  placeholder='cidade'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('cidade')}
+                />
+                {errors.cidade?.message && (
+                  <p className='text-sm text-red-400'>{errors.cidade.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-7 ">
+                <label className='text-black'>{t('Telefone: ')}</label>
+                <input
+                  placeholder='telefone'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
+                  {...register('telefone')}
+                />
+                {errors.telefone?.message && (
+                  <p className='text-sm text-red-400'>{errors.telefone.message}</p>
+                )}
+
+              </div>
+
+              <div className="space-y-2 pt-2 pl-8">
+                <label className='text-black block'>{t('Estado: ')}</label>
+                <input
+                  placeholder='Estado'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('estado')}
+                />
+                {errors.estado?.message && (
+                  <p className='text-sm text-red-400'>{errors.estado.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pl-8">
+                <label className='text-black'>{t('Entregador: ')}</label>
+                <input
+                  placeholder='entregador'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
+                  {...register('entregador')}
+                />
+                {errors.entregador?.message && (
+                  <p className='text-sm text-red-400'>{errors.entregador.message}</p>
+                )}
+              </div>
+              
+
               <div className="space-y-2 flex flex-col items-start pl-7 ">
-              <label className='text-black'>{t('Status: ')}</label>
-              <Select
-              name="status"
-              value={Status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-               {containers
-                .filter(container => container.id === currentContainerId) // Filtrar apenas o contêiner atual
-                .map(container => (
-                  <option key={container.id} value={container.title}>{container.title}</option>
-                ))
-              }
-            </Select>
+                <label className='text-black'>{t('Status: ')}</label>
+                <Select
+                  name="status"
+                  value={Status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  {containers
+                    .filter(container => container.id === currentContainerId) // Filtrar apenas o contêiner atual
+                    .map(container => (
+                      <option key={container.id} value={container.title}>{container.title}</option>
+                    ))
+                  }
+                </Select>
+              </div>
             </div>
-          </form>
-  
-          <form className='grid grid-cols-1 w-full'>
-            <div className="space-y-2 flex flex-col pl-8 w-full pr-10">
+
+            <div className='grid grid-cols-1 w-full'>
+              <div className="space-y-2 flex flex-col pl-8 w-full pr-10">
                 <label className='text-black'>{t('Instruções Especiais: ')}</label>
                 <textarea
                   className="textarea textarea-bordered bg-gray-100 text-black "
@@ -831,36 +872,42 @@ export default function Home() {
                   name='instructions'
                   value={Instructions}
                   onChange={(e) => setInstructions(e.target.value)}
-                   ></textarea>
+                ></textarea>
               </div>
-  
-            <div className="space-y-2 pl-8 pt-5">
-            <select
-             className="select w-full max-w-xs bg-gray-100 text-black rounded-lg"
-             name='pagamento'
-             onChange={(e) => setPagamento(e.target.value)}
-             >
-              <option disabled selected>{t('Selecione a forma de pagamento')}</option>
-              <option value={"credito"}>{t('Cartão de Crédito')}</option>
-              <option value={"debito"}>{t('Cartão de Débito')}</option>
-              <option value={"pix"}>{t('PIX')}</option>
-            </select>
+
+              <div className="space-y-2 pl-8 pt-5">
+                <select
+                  className="select w-full max-w-xs bg-gray-100 text-black rounded-lg"
+                  {...register('pagamento')}
+                  defaultValue=""
+                >
+                  <option value="" disabled selected>{t('Selecione a forma de pagamento')}</option>
+                  <option value={"credito"}>{t('Cartão de Crédito')}</option>
+                  <option value={"debito"}>{t('Cartão de Débito')}</option>
+                  <option value={"pix"}>{t('PIX')}</option>
+                </select>
+                {errors.pagamento?.message && (
+                  <p className='text-sm text-red-400'>{errors.pagamento.message}</p>
+                )}
+              </div>
+
+
+
             </div>
-          </form>
-  
-          
-      </div>
+
+
+          </div>
 
           <div className='p-5 flex justify-end'>
             <Button
-                variant='destructive'
-                onClick={onAddItem}>
-                {t('Adicionar Pedido')}</Button>
+              variant='destructive'
+              >
+              {t('Adicionar Pedido')}</Button>
           </div>
-  
-    </form>
-  
-  </Modal>
+
+        </form>
+
+      </Modal>
 
       <div className="flex items-center justify-between gap-y-2">
         <h1 className="text-gray-600 text-3xl font-bold">{t('Gestor de Pedidos')}</h1>

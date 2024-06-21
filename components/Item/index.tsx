@@ -19,7 +19,7 @@ type ItemsType = {
   cidade: string;
   estado: string;
   telefone: string;
-  produtos: string[];
+  produtos: string;
   quantidade: number;
   pagamento: string;
   instructions: string;
