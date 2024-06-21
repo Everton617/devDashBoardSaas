@@ -33,7 +33,7 @@ const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex
     },
   });
 
-  const showItemModal = () => {
+   const showItemModal = () => {
     onAddItem();
   };
 
