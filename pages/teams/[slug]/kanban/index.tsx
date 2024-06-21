@@ -178,6 +178,7 @@ export default function Home() {
         console.log("error ==> ", error);
       }
     }
+    toast.success('Pedido excluído com sucesso!');
   };
   
   const handleCancelDeleteItem = () => {
@@ -191,8 +192,12 @@ export default function Home() {
   };
 
   const handleSaveTitle = () => {
-    if (!newTitle || !activeId) return;
-  
+    if (!newTitle) {
+      toast.error('Por favor insira um título!');
+      return;
+    }
+    
+    if (!activeId) return;
     setContainers(prevContainers =>
       prevContainers.map(container => {
         if (container.id === activeId) {
@@ -204,6 +209,9 @@ export default function Home() {
         return container;
       })
     );
+  
+    
+    toast.success('Título atualizado com sucesso!');
   
     setShowTitleModal(false);
     setNewTitle('');
@@ -658,214 +666,7 @@ export default function Home() {
     
     <div className="mx-auto max-w-9xl py-10 ">
       {/* Add Container Modal */}
-      <Modal
-        showModal={showAddItemModal}
-        setShowModal={setShowAddItemModal}
-        >
-        <div className='p-1 pb-5  rounded-lg'>
-          <h1 className="text-gray-800 text-2xl font-bold pt-8 pl-8 text-black">{t('Adicionar Pedido')}</h1>
-        </div>
-        <form onSubmit={handleSubmit(processForm)}
-          className='flex flex-1 flex-col gap-4 w-full'>
-
-          <div className="flex flex-col w-full items-start gap-y-5 overflow-auto max-h-[700px] pb-10">
-
-
-            <div className='flex flex-col pl-8 pt-4 w-full'>
-              <label className='text-black '>{t('Pedido: ')}</label>
-              <input
-                placeholder="Insira o número do seu pedido"
-                className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-80'
-                {...register('pedido')}
-              />
-              {errors.pedido?.message && (
-                <p className='text-sm text-red-400'>{errors.pedido.message}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 ">
-
-              <div className="space-y-2 pl-8 ">
-                <label className='text-black '>{t('Produtos: ')}</label>
-                <input
-                  placeholder='produtos'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 '
-                  {...register('produtos')}
-                />
-                {errors.produtos?.message && (
-                  <p className='text-sm text-red-400'>{errors.produtos.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pl-7 ">
-                <label className='text-black'>{t('Quantidade: ')}</label>
-                <input
-                  placeholder='Quantidade'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
-                  {...register('quantidade')}
-                />
-                {errors.quantidade?.message && (
-                  <p className='text-sm text-red-400'>{errors.quantidade.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-1 pt-1 pl-8 ">
-                <label className='text-black block'>{t('Rua: ')}</label>
-                <input
-                  placeholder='rua'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
-                  {...register('rua')}
-                />
-                {errors.rua?.message && (
-                  <p className='text-sm text-red-400'>{errors.rua.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pl-7">
-                <label className='text-black'>{t('Número: ')}</label>
-                <input
-                  placeholder='numero'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
-                  {...register('numero')}
-                />
-                {errors.numero?.message && (
-                  <p className='text-sm text-red-400'>{errors.numero.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pt-2 pl-8 p-2">
-                <label className='text-black '>{t('Complemento: ')}</label>
-                <input
-                  placeholder='complemento'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
-                  {...register('complemento')}
-                />
-                {errors.complemento?.message && (
-                  <p className='text-sm text-red-400'>{errors.complemento.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pt-2 pl-7">
-                <label className='text-black block '>{t('CEP: ')}</label>
-                <input
-                  placeholder='cep'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
-                  {...register('cep')}
-                />
-                {errors.cep?.message && (
-                  <p className='text-sm text-red-400'>{errors.cep.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pt-2 pl-8">
-                <label className='text-black block'>{t('Cidade: ')}</label>
-                <input
-                  placeholder='cidade'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
-                  {...register('cidade')}
-                />
-                {errors.cidade?.message && (
-                  <p className='text-sm text-red-400'>{errors.cidade.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pt-2 pl-7 ">
-                <label className='text-black'>{t('Telefone: ')}</label>
-                <input
-                  placeholder='telefone'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
-                  {...register('telefone')}
-                />
-                {errors.telefone?.message && (
-                  <p className='text-sm text-red-400'>{errors.telefone.message}</p>
-                )}
-
-              </div>
-
-              <div className="space-y-2 pt-2 pl-8">
-                <label className='text-black block'>{t('Estado: ')}</label>
-                <input
-                  placeholder='Estado'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
-                  {...register('estado')}
-                />
-                {errors.estado?.message && (
-                  <p className='text-sm text-red-400'>{errors.estado.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pl-8">
-                <label className='text-black'>{t('Entregador: ')}</label>
-                <input
-                  placeholder='entregador'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
-                  {...register('entregador')}
-                />
-                {errors.entregador?.message && (
-                  <p className='text-sm text-red-400'>{errors.entregador.message}</p>
-                )}
-              </div>
-              
-
-              <div className="space-y-2 flex flex-col items-start pl-7 ">
-                <label className='text-black'>{t('Status: ')}</label>
-                <Select
-                  name="status"
-                  value={Status}
-                  onChange={(e) => setStatus(e.target.value)}
-                >
-                  {containers
-                    .map(container => (
-                      <option key={container.id} value={container.title}>{container.title}</option>
-                    ))
-                  }
-                </Select>
-              </div>
-            </div>
-
-            <div className='grid grid-cols-1 w-full'>
-              <div className="space-y-2 flex flex-col pl-8 w-full pr-10">
-                <label className='text-black'>{t('Instruções Especiais: ')}</label>
-                <textarea
-                  className="textarea textarea-bordered bg-gray-100 text-black "
-                  placeholder="Caso exista, informe alguma instrução"
-                  {...register('instructions')}
-                ></textarea>
-              </div>
-
-              <div className="space-y-2 pl-8 pt-5">
-                <select
-                  className="select w-full max-w-xs bg-gray-100 text-black rounded-lg"
-                  {...register('pagamento')}
-                  defaultValue=""
-                >
-                  <option value="" disabled selected>{t('Selecione a forma de pagamento')}</option>
-                  <option value={"credito"}>{t('Cartão de Crédito')}</option>
-                  <option value={"debito"}>{t('Cartão de Débito')}</option>
-                  <option value={"pix"}>{t('PIX')}</option>
-                </select>
-                {errors.pagamento?.message && (
-                  <p className='text-sm text-red-400'>{errors.pagamento.message}</p>
-                )}
-              </div>
-
-
-
-            </div>
-
-
-          </div>
-
-          <div className='p-5 flex justify-end'>
-            <Button
-              variant='destructive'
-              >
-              {t('Adicionar Pedido')}</Button>
-          </div>
-
-        </form>
-
-      </Modal>
+      
       {/* Add Item Modal */}
       <Modal
         showModal={showAddItemModal}
