@@ -154,9 +154,8 @@
 
   <details>
     <summary><h2>PUT</summary>
+    Ainda em desenvolvimento, falar com hierro.
   </details>
-
-  Ainda em desenvolvimento, falar com hierro.
 
   <details>
   <summary><h2>DELETE</summary>
