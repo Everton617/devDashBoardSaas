@@ -28,7 +28,7 @@ import Container from '@/components/Container';
 import Items from '@/components/Item';
 import Modal from '@/components/Modal';
 import Input from '@/components/Input';
-import  Button  from '@/components/Button';
+import Button from '@/components/Button';
 import Select from '@/components/select';
 
 import { useTranslation } from 'next-i18next';
@@ -66,7 +66,7 @@ type DNDType = {
     cep: string;
     cidade: string;
     estado: string;
-    telefone:string;
+    telefone: string;
     pagamento: string;
     instructions: string;
     status: string;
@@ -110,8 +110,8 @@ export default function Home() {
 
 
   const [Status, setStatus] = useState('');
- 
-  
+
+
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
@@ -119,15 +119,17 @@ export default function Home() {
   const [newTitle, setNewTitle] = useState('');
 
   const [itemIdToDelete, setItemIdToDelete] = useState<UniqueIdentifier | null>(null);
- 
+
   const [showAddItemModal, setShowAddItemModal] = useState(false);
 
   const [data, setData] = useState<Inputs>()
 
+  const [inputBackgroundColor, setinputBackgroundColor] = useState('bg-white-700'); 
+
   const {
     register,
     handleSubmit,
-    watch,
+    setValue,
     reset,
     formState: { errors }
   } = useForm<Inputs>({
@@ -152,9 +154,9 @@ export default function Home() {
   const handleDeletePedido = (id: UniqueIdentifier) => {
     setItemIdToDelete(id); // Definir o item a ser excluído
     setShowDeleteConfirmation(true); // Mostrar o modal de confirmação
-    
+
   };
-  
+
   const handleConfirmDeleteItem = async () => {
     if (itemIdToDelete) {
       setContainers(prevContainers =>
@@ -167,9 +169,9 @@ export default function Home() {
       setItemIdToDelete(null);
       try {
         const response = await fetch("/api/teams/qu1ck/order", {
-             method: "DELETE",
-             headers: {"content-type": "application/json"},
-             body: JSON.stringify({orderId: itemIdToDelete})
+          method: "DELETE",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ orderId: itemIdToDelete })
         })
 
         const data = await response.json();
@@ -180,7 +182,7 @@ export default function Home() {
     }
     toast.success('Pedido excluído com sucesso!');
   };
-  
+
   const handleCancelDeleteItem = () => {
     setShowDeleteConfirmation(false);
     setItemIdToDelete(null);
@@ -196,7 +198,7 @@ export default function Home() {
       toast.error('Por favor insira um título!');
       return;
     }
-    
+
     if (!activeId) return;
     setContainers(prevContainers =>
       prevContainers.map(container => {
@@ -209,15 +211,15 @@ export default function Home() {
         return container;
       })
     );
-  
-    
+
+
     toast.success('Título atualizado com sucesso!');
-  
+
     setShowTitleModal(false);
     setNewTitle('');
   };
-  
- 
+
+
   // Find the value of the items
   function findValueOfItems(id: UniqueIdentifier | undefined, type: string) {
     if (type === 'container') {
@@ -231,7 +233,7 @@ export default function Home() {
   }
 
 
-  
+
   const findItemPedido = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
     if (!container) return '';
@@ -239,7 +241,7 @@ export default function Home() {
     if (!item) return '';
     return item.pedido;
   };
-  
+
   const findItemHorario = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
     if (!container) return '';
@@ -247,7 +249,7 @@ export default function Home() {
     if (!item) return '';
     return item.horario;
   };
-  
+
   const findItemEntregador = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
     if (!container) return '';
@@ -270,7 +272,7 @@ export default function Home() {
     const item = container.items.find((item) => item.id === id);
     if (!item) return undefined;
     return item.numero;
-}
+  }
 
   const findItemComplemento = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
@@ -280,7 +282,7 @@ export default function Home() {
     return item.complemento;
   };
 
-  const findItemCep = (id: UniqueIdentifier | undefined)  => {
+  const findItemCep = (id: UniqueIdentifier | undefined) => {
     const container = findValueOfItems(id, 'item');
     if (!container) return '';
     const item = container.items.find((item) => item.id === id);
@@ -585,9 +587,36 @@ export default function Home() {
     setActiveId(null);
   }
 
- 
 
   
+
+  const [endereco, setEndereco] = useState({});
+
+  const handleCEPChange = async (event) => {
+    const cep = event.target.value;
+    setValue('cep', cep);
+
+    const cepFormatado = cep.replace("-", "");
+
+   
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cepFormatado}/json/`);
+      if (!response.ok) {
+        throw new Error('Erro ao buscar dados do CEP');
+      }
+      const data = await response.json();
+      setEndereco(data);
+      
+      setValue('rua', data.logradouro || '');
+      setValue('cidade', data.localidade || '');
+      setValue('estado', data.uf || '');  
+
+      setinputBackgroundColor('bg-gray-300');
+    } catch (error) {
+      console.error('Erro ao buscar dados do CEP:', error);
+      setEndereco({}); 
+    }
+  };
 
   const onAddItem = async (data: Inputs) => {
 
@@ -608,12 +637,40 @@ export default function Home() {
       instructions,
     } = data;
 
+
+    const cepFormatado = cep.replace("-", "");
+
     const id = `item-${uuidv4()}`;
     const container = containers.find((item) => item.id === currentContainerId);
     if (!container) {
       console.error('Container not found');
       return;
     }
+
+    const validarCep = async (cep) => {
+      const url = `https://viacep.com.br/ws/${cep}/json/`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Erro ao validar o CEP');
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Erro:', error);
+        return null;
+      }
+    };
+    
+
+    const cepDados = await validarCep(cepFormatado);
+    if (!cepDados) {
+      console.error('CEP inválido');
+      return;
+    }
+
+    const { logradouro, uf, localidade } = cepDados;
+
 
     console.log('Container title:', container.title);
     container.items.push({
@@ -623,12 +680,12 @@ export default function Home() {
       quantidade,
       horario: new Date(),
       entregador,
-      rua,
+      rua: rua || logradouro,
       numero,
       complemento,
       cep,
-      cidade,
-      estado,
+      cidade: cidade || localidade,
+      estado: estado || uf,
       telefone,
       pagamento,
       instructions: instructions ?? '',
@@ -658,15 +715,15 @@ export default function Home() {
       console.error("error ==> ", error);
     }
 
-    
+
   };
 
 
   return (
-    
+
     <div className="mx-auto max-w-9xl py-10 ">
       {/* Add Container Modal */}
-      
+
       {/* Add Item Modal */}
       <Modal
         showModal={showAddItemModal}
@@ -723,7 +780,8 @@ export default function Home() {
                 <label className='text-black block'>{t('Rua: ')}</label>
                 <input
                   placeholder='rua'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  disabled
+                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 ${inputBackgroundColor}`}
                   {...register('rua')}
                 />
                 {errors.rua?.message && (
@@ -760,7 +818,8 @@ export default function Home() {
                 <input
                   placeholder='cep'
                   className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
-                  {...register('cep')}
+                  {...register('cep', { required: 'O CEP é obrigatório.' })}
+                  onChange={handleCEPChange} // Adiciona o evento onChange para buscar dados do CEP
                 />
                 {errors.cep?.message && (
                   <p className='text-sm text-red-400'>{errors.cep.message}</p>
@@ -770,8 +829,9 @@ export default function Home() {
               <div className="space-y-2 pt-2 pl-8">
                 <label className='text-black block'>{t('Cidade: ')}</label>
                 <input
+                disabled
                   placeholder='cidade'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 ${inputBackgroundColor}`}
                   {...register('cidade')}
                 />
                 {errors.cidade?.message && (
@@ -795,8 +855,9 @@ export default function Home() {
               <div className="space-y-2 pt-2 pl-8">
                 <label className='text-black block'>{t('Estado: ')}</label>
                 <input
+                disabled
                   placeholder='Estado'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 ${inputBackgroundColor}`}
                   {...register('estado')}
                 />
                 {errors.estado?.message && (
@@ -815,7 +876,7 @@ export default function Home() {
                   <p className='text-sm text-red-400'>{errors.entregador.message}</p>
                 )}
               </div>
-              
+
 
               <div className="space-y-2 flex flex-col items-start pl-7 ">
                 <label className='text-black'>{t('Status: ')}</label>
@@ -870,7 +931,7 @@ export default function Home() {
           <div className='p-5 flex justify-end'>
             <Button
               variant='destructive'
-              >
+            >
               {t('Adicionar Pedido')}</Button>
           </div>
 
@@ -890,9 +951,9 @@ export default function Home() {
             onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
           >
-            
+
             <SortableContext items={containers.map((i) => i.id)}>
-              {containers.map((container,containerIndex) => (
+              {containers.map((container, containerIndex) => (
                 <Container
                   id={container.id}
                   title={container.title}
@@ -902,68 +963,68 @@ export default function Home() {
                   onAddItem={() => {
                     setShowAddItemModal(true);
                     setCurrentContainerId(container.id);
-              
+
                   }}
 
                   onClickEdit={() => handleChangeTitle(container.id)}
-                  
-               
+
+
                 >
                   <Modal
-                      showModal={showTitleModal}
-                      setShowModal={setShowTitleModal}
-                      >
-                        <div className="flex flex-col w-full items-center gap-y-4 p-10">
-                        <h1 className="text-gray-800 text-3xl font-bold">{t('Alterar título')}</h1>
-                            <Input
-                            size='flex'
-                            name='input'
-                            type="text"
-                            placeholder="Novo Título"
-                            value={newTitle}
-                            onChange={(e) => setNewTitle(e.target.value)}
-                          />
-                          <Button variant='destructive' onClick={handleSaveTitle}>{t('Salvar')}</Button> 
-                        </div>
-                    </Modal>
-                    
+                    showModal={showTitleModal}
+                    setShowModal={setShowTitleModal}
+                  >
+                    <div className="flex flex-col w-full items-center gap-y-4 p-10">
+                      <h1 className="text-gray-800 text-3xl font-bold">{t('Alterar título')}</h1>
+                      <Input
+                        size='flex'
+                        name='input'
+                        type="text"
+                        placeholder="Novo Título"
+                        value={newTitle}
+                        onChange={(e) => setNewTitle(e.target.value)}
+                      />
+                      <Button variant='destructive' onClick={handleSaveTitle}>{t('Salvar')}</Button>
+                    </div>
+                  </Modal>
+
                   <SortableContext items={container.items.map((i) => i.id)}>
                     <div className="flex items-start flex-col gap-y-4">
-                    <Modal
-                      showModal={showDeleteConfirmation}
-                      setShowModal={setShowDeleteConfirmation}
+                      <Modal
+                        showModal={showDeleteConfirmation}
+                        setShowModal={setShowDeleteConfirmation}
                       >
                         <div className="flex flex-col w-full items-center rounded-lg p-10 gap-2">
                           <h1 className="text-gray-800 text-3xl font-bold">
-                          {t('Confirmar Exclusão')}
+                            {t('Confirmar Exclusão')}
                           </h1>
                           <p>{t('Deseja mesmo excluir este pedido?')}</p>
                           <div className="flex gap-x-5 pt-5">
                             <Button className="bg-error h-8 hover:bg-red-700" onClick={handleConfirmDeleteItem}>{t('Sim')}</Button>
-                            <Button className="bg-error h-8 hover:bg-red-700"onClick={handleCancelDeleteItem}>{t('Cancelar')}</Button>
+                            <Button className="bg-error h-8 hover:bg-red-700" onClick={handleCancelDeleteItem}>{t('Cancelar')}</Button>
                           </div>
                         </div>
-                    </Modal>
-                    
+                      </Modal>
+
                       {container.items.map((i) => (
-                        <Items 
-                        key={i.id} 
-                        id={i.id}
-                        pedido={i.pedido}
-                        horario={i.horario}
-                        entregador={i.entregador}
-                        rua={i.rua}
-                        numero={i.numero}
-                        complemento={i.complemento}
-                        cep={i.cep}
-                        cidade={i.cidade}
-                        estado={i.estado}
-                        telefone={i.telefone}
-                        produtos={i.produtos}
-                        quantidade={i.quantidade}
-                        pagamento={i.pagamento}
-                        instructions={i.instructions}
-                        onDelete={handleDeletePedido} 
+                        <Items
+                          key={i.id}
+                          id={i.id}
+                          pedido={i.pedido}
+                          horario={i.horario}
+                          entregador={i.entregador}
+                          rua={i.rua}
+                          numero={i.numero}
+                          complemento={i.complemento}
+                          cep={i.cep}
+                          cidade={i.cidade}
+                          estado={i.estado}
+                          telefone={i.telefone}
+                          produtos={i.produtos}
+                          quantidade={i.quantidade}
+                          pagamento={i.pagamento}
+                          instructions={i.instructions}
+                          onDelete={handleDeletePedido}
                         />
                       ))}
                     </div>
@@ -975,55 +1036,55 @@ export default function Home() {
               {/* Drag Overlay For item Item */}
               {activeId && activeId.toString().includes('item') && (
                 <Items
-                id={activeId}
-                pedido={findItemPedido(activeId)}
-                horario={new Date(findItemHorario(activeId))}
-                entregador={findItemEntregador(activeId)}
-                rua={findItemRua(activeId)}
-                numero={findItemNumero(activeId) ?? 0}
-                complemento={findItemComplemento(activeId)}
-                cep={findItemCep(activeId)}
-                cidade={findItemCidade(activeId)}
-                estado={findItemEstado(activeId)}
-                telefone={findItemTelefone(activeId)}
-                produtos={findItemProdutos(activeId)}
-                quantidade={findItemQuantidade(activeId) ?? 0}
-                pagamento={findItemPagamento(activeId)}
-                instructions={findItemInstructions(activeId)}
-                onDelete={handleDeletePedido} />
+                  id={activeId}
+                  pedido={findItemPedido(activeId)}
+                  horario={new Date(findItemHorario(activeId))}
+                  entregador={findItemEntregador(activeId)}
+                  rua={findItemRua(activeId)}
+                  numero={findItemNumero(activeId) ?? 0}
+                  complemento={findItemComplemento(activeId)}
+                  cep={findItemCep(activeId)}
+                  cidade={findItemCidade(activeId)}
+                  estado={findItemEstado(activeId)}
+                  telefone={findItemTelefone(activeId)}
+                  produtos={findItemProdutos(activeId)}
+                  quantidade={findItemQuantidade(activeId) ?? 0}
+                  pagamento={findItemPagamento(activeId)}
+                  instructions={findItemInstructions(activeId)}
+                  onDelete={handleDeletePedido} />
               )}
               {/* Drag Overlay For Container */}
               {activeId && activeId.toString().includes('container') && (
-                <Container 
+                <Container
 
-                id={activeId} 
-                title={findContainerTitle(activeId)} 
-                onAddItem={onAddItem} 
-                onClickEdit={handleChangeTitle} 
-                containerIndex={activeContainerIndex}
+                  id={activeId}
+                  title={findContainerTitle(activeId)}
+                  onAddItem={onAddItem}
+                  onClickEdit={handleChangeTitle}
+                  containerIndex={activeContainerIndex}
                 >
 
                   {findContainerItems(activeId).map((i) => (
                     <Items
-                    key={i.id} 
-                    id={i.id}
-                    pedido={i.pedido}
-                    horario={i.horario}
-                    entregador={i.entregador}
-                    rua={i.rua}
-                    numero={i.numero}
-                    complemento={i.complemento}
-                    cep={i.cep}
-                    cidade={i.cidade}
-                    estado={i.estado}
-                    telefone={i.telefone}
-                    produtos={i.produtos}
-                    quantidade={i.quantidade}
-                    pagamento={i.pagamento}
-                    instructions={i.instructions}
-                     onDelete={handleDeletePedido}
+                      key={i.id}
+                      id={i.id}
+                      pedido={i.pedido}
+                      horario={i.horario}
+                      entregador={i.entregador}
+                      rua={i.rua}
+                      numero={i.numero}
+                      complemento={i.complemento}
+                      cep={i.cep}
+                      cidade={i.cidade}
+                      estado={i.estado}
+                      telefone={i.telefone}
+                      produtos={i.produtos}
+                      quantidade={i.quantidade}
+                      pagamento={i.pagamento}
+                      instructions={i.instructions}
+                      onDelete={handleDeletePedido}
 
-                     />
+                    />
                   ))}
                 </Container>
               )}
