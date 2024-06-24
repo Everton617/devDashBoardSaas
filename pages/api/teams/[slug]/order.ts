@@ -100,7 +100,7 @@ const testNewOrder = {
     instrucoes: "sem tijoloa"
 }
 
-const inDev = true;
+const inDev = false;
 
 
 async function handlePOST(
