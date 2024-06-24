@@ -598,7 +598,7 @@ export default function Home() {
 
     const cepFormatado = cep.replace("-", "");
 
-   
+   if (cep.length === 8){
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cepFormatado}/json/`);
       if (!response.ok) {
@@ -613,9 +613,12 @@ export default function Home() {
 
       setinputBackgroundColor('bg-gray-300');
     } catch (error) {
-      console.error('Erro ao buscar dados do CEP:', error);
       setEndereco({}); 
+      toast.error('Cep Inválido');
+
     }
+  }
+
   };
 
   const onAddItem = async (data: Inputs) => {
@@ -741,7 +744,7 @@ export default function Home() {
             <div className='flex flex-col pl-8 pt-4 w-full'>
               <label className='text-black '>{t('Pedido: ')}</label>
               <input
-                placeholder="Insira o número do seu pedido"
+                placeholder="Insira o número do pedido"
                 className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-80'
                 {...register('pedido')}
               />
@@ -781,7 +784,7 @@ export default function Home() {
                 <input
                   placeholder='rua'
                   disabled
-                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 ${inputBackgroundColor}`}
+                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed  w-60  ${inputBackgroundColor}`}
                   {...register('rua')}
                 />
                 {errors.rua?.message && (
@@ -831,7 +834,7 @@ export default function Home() {
                 <input
                 disabled
                   placeholder='cidade'
-                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 ${inputBackgroundColor}`}
+                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed w-60 ${inputBackgroundColor}`}
                   {...register('cidade')}
                 />
                 {errors.cidade?.message && (
@@ -857,7 +860,7 @@ export default function Home() {
                 <input
                 disabled
                   placeholder='Estado'
-                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 ${inputBackgroundColor}`}
+                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed w-60 ${inputBackgroundColor}`}
                   {...register('estado')}
                 />
                 {errors.estado?.message && (
