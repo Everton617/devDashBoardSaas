@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { OrderStatus } from "@prisma/client";
 
 
 export const orderPedido = z.string();
 export const orderQuantidade = z.number().int().positive();
-export const orderStatus = z.enum(["BACKLOG", "ANDAMENTO", "ENTREGA", "CONCLUIDO"]);
-export const orderEntregador = z.string().toLowerCase().regex(/^[a-zA-Z]+$/, "apenas letras são permitidas");
+export const orderStatus = z.nativeEnum(OrderStatus).optional();
+export const orderEntregador = z.string().regex(/^[\p{L}\s']+$/u, "apenas letras são permitidas");
 export const orderRua = z.string().regex(/^[A-Za-zÀ-ÖØ-öø-ÿ0-9 .-]+$/, "sintaxe inválida");
 export const orderNumeroRua = z.string().regex(/^[A-Za-z0-9]+$/, "sintaxe inválida");
 export const orderComplemento = z.string().regex(/^[\p{L}\p{N}\s.,!?~-]+$/u);
