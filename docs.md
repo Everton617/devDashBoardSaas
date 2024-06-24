@@ -69,14 +69,11 @@
   const order = {
       pedido: "3x pastel de uva",
       quantidade: 2,
-      status: "ANDAMENTO",
+      status: "ANDAMENTO",      // (opcional) valores: BACKLOG | ANDAMENTO | ENTREGA | CONCLUIDO - valor default é BACKLOG
       entregador: "Marcelo",
-      rua: "Alameda",
       numero: "12",
       complemento: "perto dali",
       cep: "59158-210",
-      cidade: "Natal",
-      estado: "RN",
       tel: "(84) 98752-2972",
       metodo_pag: "cartão",
       instrucoes: "sem tijoloa"
@@ -90,8 +87,11 @@
   });
   ```
 
-> [!NOTE] 
-> para criação de pedidos, não é necessário passar o campo `id`, pois o banco gera um uuid() automaticamente
+> [!NOTE]
+> 
+> Para criação de pedidos, não é necessário passar o campo `id`, pois o banco gera um uuid() automaticamente.
+> 
+> Para o endereço, apenas o `cep` será necessário. O resto será preenchido automaticamente pelo backend.
  
   ## Retorno da requesição, quando bem sucedida:
   
@@ -123,8 +123,8 @@
 
   export const orderPedido = z.string();
   export const orderQuantidade = z.number().int().positive();
-  export const orderStatus = z.enum(["BACKLOG", "ANDAMENTO", "ENTREGA", "CONCLUIDO"]);
-  export const orderEntregador = z.string().toLowerCase().regex(/^[a-zA-Z]+$/, "apenas letras são permitidas");
+  export const orderStatus = z.nativeEnum(OrderStatus).optional();
+  export const orderEntregador = z.string().regex(/^[\p{L}\s']+$/u, "apenas letras são permitidas");
   export const orderRua = z.string().regex(/^[A-Za-zÀ-ÖØ-öø-ÿ0-9 .-]+$/, "sintaxe inválida");
   export const orderNumeroRua = z.string().regex(/^[A-Za-z0-9]+$/, "sintaxe inválida");
   export const orderComplemento = z.string().regex(/^[\p{L}\p{N}\s.,!?~-]+$/u);
@@ -144,12 +144,19 @@
   
   export const orderMetodoPag = z.string().regex(/^[\p{L}]+$/u, "método de pagamento inválido");
   export const orderInstrucoes = z.string().max(80).regex(/^[\p{L}\p{N}\s.,!?~-]+$/u, "caracteres inválidos");
+  
+  export const orderId = z.string({
+          required_error: "Order Id is required",
+          invalid_type_error: "Order Id must be a string"
+  }).uuid();
   ```
   </details>
 
   <details>
     <summary><h2>PUT</summary>
   </details>
+
+  Ainda em desenvolvimento, falar com hierro.
 
   <details>
   <summary><h2>DELETE</summary>
