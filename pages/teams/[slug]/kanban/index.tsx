@@ -122,7 +122,7 @@ export default function Home() {
 
   const [showAddItemModal, setShowAddItemModal] = useState(false);
 
-  const [data, setData] = useState<Inputs>()
+  
 
   const [inputBackgroundColor, setinputBackgroundColor] = useState('bg-white-700'); 
 
@@ -134,18 +134,15 @@ export default function Home() {
     formState: { errors }
   } = useForm<Inputs>({
     resolver: zodResolver(FormDataSchema)
-  })
-
-  //   console.log(watch('name'))
-  //   console.log('rendering')
-
+  });
+  
   const processForm: SubmitHandler<Inputs> = data => {
-    console.log(data)
-    reset()
-    setData(data)
-    onAddItem(data)
+    console.log(data);
+    reset();
+    // setData(data); // Se você remover a declaração de data, remova também essa linha
+    onAddItem(data);
     setShowAddItemModal(false);
-  }
+  };
 
 
   const [activeContainerIndex] = useState<number | null>(null);
@@ -590,39 +587,32 @@ export default function Home() {
 
   
 
-  const [endereco, setEndereco] = useState({});
 
   const handleCEPChange = async (event) => {
     const cep = event.target.value;
     setValue('cep', cep);
-
+  
     const cepFormatado = cep.replace("-", "");
-
-    if( cepFormatado.length > 8){
+  
+    if (cepFormatado.length > 8) {
       toast.error('O cep deve ter no máximo 8 caracteres');
     }
-
+  
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cepFormatado}/json/`);
       const data = await response.json();
       if (!response.ok || data.erro) {
         toast.error('Cep Inexistente');
         throw new Error('Erro ao buscar dados do CEP');
-      } 
-      
-      setEndereco(data);
-      
+      }
       setValue('rua', data.logradouro || '');
       setValue('cidade', data.localidade || '');
-      setValue('estado', data.uf || '');  
-
+      setValue('estado', data.uf || '');
+  
       setinputBackgroundColor('bg-gray-300');
     } catch (error) {
-      setEndereco({}); 
-      
+      // setEndereco({}); 
     }
-
-
   };
 
   const onAddItem = async (data: Inputs) => {
@@ -762,7 +752,7 @@ export default function Home() {
               <div className="space-y-2 pl-8 ">
                 <label className='text-black '>{t('Produtos: ')}</label>
                 <input
-                  placeholder='produtos'
+                  placeholder='Insira os produtos do pedido'
                   className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60 '
                   {...register('produtos')}
                 />
@@ -774,7 +764,7 @@ export default function Home() {
               <div className="space-y-2 pl-7 ">
                 <label className='text-black'>{t('Quantidade: ')}</label>
                 <input
-                  placeholder='Quantidade'
+                  placeholder='Insira a quantidade'
                   className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
                   {...register('quantidade')}
                 />
@@ -786,7 +776,7 @@ export default function Home() {
               <div className="space-y-2 pt-2 pl-7">
                 <label className='text-black block '>{t('CEP: ')}</label>
                 <input
-                  placeholder='cep'
+                  placeholder='Insira o cep do destinatário'
                   className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
                   {...register('cep', { required: 'O CEP é obrigatório.' })}
                   onChange={handleCEPChange} // Adiciona o evento onChange para buscar dados do CEP
@@ -799,8 +789,8 @@ export default function Home() {
               <div className="space-y-2 pt-2 pl-7 ">
                 <label className='text-black block'>{t('Estado: ')}</label>
                 <input
-                disabled
-                  placeholder='Estado'
+                readOnly
+                  placeholder='Insira o estado do destinatário'
                   className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed w-50 ${inputBackgroundColor}`}
                   {...register('estado')}
                 />
@@ -812,8 +802,8 @@ export default function Home() {
               <div className="space-y-2 pt-0 pl-8">
                 <label className='text-black block'>{t('Cidade: ')}</label>
                 <input
-                disabled
-                  placeholder='cidade'
+                readOnly
+                  placeholder='Insira a cidade do destinatário'
                   className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed w-60 ${inputBackgroundColor}`}
                   {...register('cidade')}
                 />
@@ -825,8 +815,8 @@ export default function Home() {
               <div className="space-y-1 pt-1 pl-8 ">
                 <label className='text-black block'>{t('Rua: ')}</label>
                 <input
-                  placeholder='rua'
-                  disabled
+                  placeholder='Insira a rua do destinatário'
+                  readOnly
                   className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed  w-50  ${inputBackgroundColor}`}
                   {...register('rua')}
                 />
@@ -838,7 +828,7 @@ export default function Home() {
               <div className="space-y-2 pl-7 pt-1">
                 <label className='text-black'>{t('Número: ')}</label>
                 <input
-                  placeholder='numero'
+                  placeholder='Insira o número residencial do destinatário'
                   className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
                   {...register('numero')}
                 />
@@ -850,7 +840,7 @@ export default function Home() {
               <div className="space-y-2 pt-2 pl-8 p-2">
                 <label className='text-black '>{t('Complemento: ')}</label>
                 <input
-                  placeholder='complemento'
+                  placeholder=''
                   className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-50'
                   {...register('complemento')}
                 />
@@ -864,9 +854,9 @@ export default function Home() {
               
 
               <div className="space-y-2 pl-7 ">
-                <label className='text-black'>{t('Telefone: ')}</label>
+                <label className='text-black'>{t('Insira o telefone do destinatário: ')}</label>
                 <input
-                  placeholder='telefone'
+                  placeholder='Insira o telefone do destinatário'
                   className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
                   {...register('telefone')}
                 />
@@ -881,7 +871,7 @@ export default function Home() {
               <div className="space-y-2 pl-8">
                 <label className='text-black'>{t('Entregador: ')}</label>
                 <input
-                  placeholder='entregador'
+                  placeholder='Nome do entregador'
                   className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
                   {...register('entregador')}
                 />
