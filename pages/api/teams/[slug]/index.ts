@@ -1,4 +1,4 @@
-import { sendAudit } from '@/lib/retraced';
+// import { sendAudit } from '@/lib/retraced';
 import {
   deleteTeam,
   getCurrentUserWithTeam,
@@ -97,12 +97,12 @@ const handlePUT = async (req: NextApiRequest, res: NextApiResponse) => {
     throw error;
   }
 
-  sendAudit({
-    action: 'team.update',
-    crud: 'u',
-    user,
-    team: user.team,
-  });
+  // sendAudit({
+  //  action: 'team.update',
+  //  crud: 'u',
+  //  user: user,
+  //  team: user.team,
+  //});
 
   recordMetric('team.updated');
 
@@ -121,12 +121,12 @@ const handleDELETE = async (req: NextApiRequest, res: NextApiResponse) => {
 
   await deleteTeam({ id: user.team.id });
 
-  sendAudit({
-    action: 'team.delete',
-    crud: 'd',
-    user,
-    team: user.team,
-  });
+  //sendAudit({
+  //  action: 'team.delete',
+  //  crud: 'd',
+  //  user,
+  //  team: user.team,
+  //});
 
   recordMetric('team.removed');
 
