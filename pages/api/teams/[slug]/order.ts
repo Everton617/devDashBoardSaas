@@ -100,7 +100,7 @@ const testNewOrder = {
     instrucoes: "sem tijoloa"
 }
 
-const inDev = false;
+const inDev = true;
 
 
 async function handlePOST(
@@ -128,7 +128,12 @@ async function handlePOST(
     } as IOrder;
 
    const newOrder = await createOrder(order);
-   const { teamId, userId, createdAt, updatedAt, ...data } = newOrder;
+   const data: Record<string, string | number | Date> = {};
+   Object.entries(newOrder).forEach(([key, value]) => {
+       if (key !== "teamId" && key !== "userId" && key !== "createdAt" && key !== "updatedAt") {
+           data[key] = value;
+       }
+   })
    console.log(data)
 
     // sendAudit({
