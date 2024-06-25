@@ -1,35 +1,71 @@
 import { prisma } from "@/lib/prisma";
-interface IOrder {
-    id: string;
+import { OrderStatus } from "@prisma/client";
+
+export enum EOrderStatus {
+    BACLOG = "BACLOG" ,
+    ANDAMENTO = "ANDAMENTO" ,
+    ENTREGA = "ENTREGA" ,
+    CONCLUIDO = "CONCLUIDO" ,
+};
+export interface IOrder {
+    id?: string,
     pedido: string,
-    status: string,
+    status: OrderStatus,
     horario: Date,
     entregador: string,
-    from: string,
-    managedBy: string,
+    rua: string,
+    numero: string,
+    complemento: string,
+    cep: string,
+    cidade: string,
+    estado: string,
+    tel: string,
+    metodo_pag: string,
+    instrucoes: string,
+    createdBy: string,
+
     teamId: string,
     userId: string
-}
+};
+
 export async function createOrder(order: IOrder) {
     return await prisma.order.create({
-        data: {
-            id: order.id,
-            pedido: order.pedido,
-            status: order.status,
-            horario: order.horario,
-            entregador: order.entregador,
-            from: order.from,
-            managedBy: order.managedBy,
-            
-            teamId: order.teamId,
-            userId: order.userId
-
-        }
+        data: order
     });
 }
 
 export async function deleteOrder(orderId: string) {
     return await prisma.order.delete({
         where: {id: orderId}
+    })
+}
+
+export async function updateOrder(order: IOrder){
+    return await prisma.order.update({
+        where: {id: order.id},
+        data: order
+    })
+}
+
+export async function getOrders(teamId: string) {
+    return await prisma.order.findMany({
+        where: {teamId: teamId},
+        select: {
+            id: true,
+            pedido: true,
+            quantidade: true,
+            status: true,
+            entregador: true,
+            rua: true,
+            numero: true,
+            complemento: true,
+            cep: true,
+            cidade: true,
+            estado: true,
+            tel: true,
+            metodo_pag: true,
+            instrucoes: true,
+            createdBy: true,
+        }
     })
 }

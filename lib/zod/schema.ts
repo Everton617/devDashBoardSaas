@@ -27,6 +27,53 @@ import {
   eventTypes,
 } from './primitives';
 
+import {
+    orderCep,
+    orderCidade,
+    orderComplemento,
+    orderEntregador,
+    orderEstado,
+    orderId,
+    orderInstrucoes,
+    orderMetodoPag,
+    orderNumeroRua,
+    orderPedido,
+    orderQuantidade,
+    orderRua,
+    orderStatus,
+    orderTel,
+} from "./order.primitives";
+
+export const createOrderSchema = z.object({
+    pedido: orderPedido,
+    quantidade: orderQuantidade,
+    status: orderStatus,
+    entregador: orderEntregador,
+    numero: orderNumeroRua,
+    complemento: orderComplemento,
+    cep: orderCep,
+    tel: orderTel,
+    metodo_pag: orderMetodoPag,
+    instrucoes: orderInstrucoes,
+});
+
+export const updateOrderSchema = z.object({
+    id: orderId,
+    pedido: orderPedido,
+    quantidade: orderQuantidade,
+    status: orderStatus,
+    entregador: orderEntregador,
+    rua: orderRua,
+    numero: orderNumeroRua,
+    complemento: orderComplemento,
+    cep: orderCep,
+    cidade: orderCidade,
+    estado: orderEstado,
+    tel: orderTel,
+    metodo_pag: orderMetodoPag,
+    instrucoes: orderInstrucoes,
+})
+
 export const createApiKeySchema = z.object({
   name: name(50),
 });

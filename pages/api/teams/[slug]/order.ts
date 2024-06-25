@@ -1,19 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { prisma } from "@/lib/prisma";
+import { throwIfNoTeamAccess} from "models/team";
 
 import { 
-    getCurrentUserWithTeam,
-    throwIfNoTeamAccess,
-} from "models/team";
-
-import { 
+    IOrder,
     createOrder,
-    deleteOrder
+    deleteOrder,
+    getOrders,
+    updateOrder
 } from "models/order";
 
-import { sendAudit } from "@/lib/retraced";
+// import { sendAudit } from "@/lib/retraced";
+// import { throwIfNotAllowed } from "models/user";
 
-import { throwIfNotAllowed } from "models/user";
+import { createOrderSchema, updateOrderSchema, validateWithSchema } from "@/lib/zod";
+import { ApiError } from "@/lib/errors";
 
 export default async function handler(
     req: NextApiRequest,
@@ -21,16 +21,18 @@ export default async function handler(
 ) {
 
     try {
-        await throwIfNoTeamAccess(req, res);
+        const { teamId, user } = await throwIfNoTeamAccess(req, res);
+        console.log(user);
 
         switch (req.method) {
             case "GET":
-                await handlePOST(req, res);
+                await handleGET(req, res, teamId);
                 break;
             case "POST":
-                await handlePOST(req, res);
+                await handlePOST(req, res, teamId, user);
                 break;
             case "PUT":
+                await handlePUT(req, res);
                 break;
             case "DELETE":
                 await handleDELETE(req, res);
@@ -41,56 +43,143 @@ export default async function handler(
         const message = error.message || "Somethin went wrong";
         const status = error.status || 500;
         console.log("cant reach route");
-        console.log("erro-message: ", message);
+        console.log("error-message: ", message);
         res.status(status).json({error: {message}});
     }
 
 }
 
 
-async function handlePOST(req: NextApiRequest, res: NextApiResponse){
-   
-    const { user, team } = await getCurrentUserWithTeam(req, res);
-    if(!user || !team) throw new Error("no user or no team");
+async function validateCEPExistence(cep: string) {
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const data = await response.json();
+    if (data.erro) throw new ApiError(404, "CEP does not exist!");
+
+    return {
+        rua: data.logradouro,
+        cidade: data.localidade,
+        estado: data.uf
+    }
+}
+
+async function handleGET(req: NextApiRequest, res: NextApiResponse, teamId: string) {
+    // throw if not allowed
+
+    const orders = Array.from( await getOrders(teamId))
+
+    console.log("got orders successfuly");
+    console.log(orders);
+
+    return res.status(200).json({orders: orders});
+}
+
+const testUpdateOrder = {
+    id: "348452ac-895f-429f-a460-3f72ccc903f8",
+    pedido: "3x pastel de uva",
+    quantidade: 2,
+    status: "ANDAMENTO",
+    entregador: "Marcelo",
+    numero: "12",
+    complemento: "perto dali",
+    cep: "59158-210",
+    tel: "(84) 98752-2972",
+    metodo_pag: "cartao",
+    instrucoes: "sem tijoloa"
+}
+
+const testNewOrder = {
+    pedido: "3x pastel de uva",
+    quantidade: 2,
+    status: "ANDAMENTO",
+    entregador: "Marcelo",
+    numero: "12",
+    complemento: "perto dali",
+    cep: "59158-210",
+    tel: "(84) 98752-2972",
+    metodo_pag: "cartao",
+    instrucoes: "sem tijoloa"
+}
+
+const inDev = false;
+
+
+async function handlePOST(
+    req: NextApiRequest,
+    res: NextApiResponse,
+    team_id: string,
+    user: any
+){
+
+    // throw if not allowed?
     
-    const {id, pedido, status, entregador} = req.body.order;
-    if (!id || !pedido || !status || !entregador) throw new Error("invalid object");
+    if (!req.body.order) throw new Error("Order not provided");
+
+    const reqOrder = inDev ? validateWithSchema(createOrderSchema,testNewOrder) : validateWithSchema(createOrderSchema, req.body.order); // validate cep and phone inside
+
+    const address = await validateCEPExistence(reqOrder.cep);
 
     const order = {
-        id: id,
-        pedido: pedido,
-        status: status,
-        horario: new Date(),
-        entregador: entregador,
-        from: team.name,
-        managedBy: user.name,
+       ...reqOrder,
+       ...address,
+       horario: new Date(),
+       createdBy: user.name,
+       teamId: team_id,
+       userId: user.id
+    } as IOrder;
 
-        teamId: team.id,
-        userId: user.id
-      
-    }
+   const newOrder = await createOrder(order);
+   const { teamId, userId, createdAt, updatedAt, ...data } = newOrder;
+   console.log(data)
 
-    const newOrder = await createOrder(order);
-
-    sendAudit({
-        action: "order.create",
-        crud: "c",
-        user: user,
-        team: team
-    })
-
-    return res.json({data: newOrder});
+    // sendAudit({
+    //     action: "order.create",
+    //     crud: "c",
+    //     user: user,
+    //     team: team
+    //  })
+   //  recordMetric()
+    
+    console.log("Order created!");
+    console.log(newOrder);
+    return res.json({data: data, message: "order created!"});
 
 
 }
 
+async function handlePUT(req: NextApiRequest, res: NextApiResponse) {
+
+    if (!req.body.order) throw new Error("Order not provided");
+
+    const reqOrder = inDev ? validateWithSchema(updateOrderSchema, testUpdateOrder) : 
+         validateWithSchema(updateOrderSchema, req.body.order); 
+
+    const order = {
+       id: reqOrder.id,
+    } as IOrder;
+
+   const newOrder = await updateOrder(order);
+
+    // sendAudit({
+    //     action: "order.create",
+    //     crud: "c",
+    //     user: user,
+    //     team: team
+    //  })
+   //  recordMetric()
+    
+    console.log("Order updated!");
+    console.log(newOrder);
+    return res.json({message: "order updated successfuly"});
+}
+
 async function handleDELETE(req: NextApiRequest, res: NextApiResponse){
    
-    // const user = await getCurrentUserWithTeam(req, res);
-    // throwIfNotAllowed(user, "order", "create");
-    //
+    // throwIfNotAllowed(user, "order", "delete");
+    
+    const orderId = req.body.orderId;
+    if (!orderId) throw new ApiError(406, "Order id not provided")
 
-    await deleteOrder(req.body.orderId);
+    await deleteOrder(orderId);
 
     return res.json({message: "order deleted successfuly"});
 
