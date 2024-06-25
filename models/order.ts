@@ -28,7 +28,7 @@ export interface IOrder {
     userId: string
 };
 
-export async function createOrder(order: IOrder) {
+export async function createOrder(order: any) {
     return await prisma.order.create({
         data: order
     });
