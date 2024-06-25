@@ -144,8 +144,6 @@ async function handlePOST(
     //  })
    //  recordMetric()
     
-    console.log("Order created!");
-    console.log(newOrder);
     return res.json({data: data, message: "order created!"});
 
 
