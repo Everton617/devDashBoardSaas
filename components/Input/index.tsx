@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { FC } from 'react';
 import clsx from 'clsx';
 import { cva } from 'class-variance-authority';
-import InputProps from './input.type';
+import InputProps from './input.type'; // Ajuste o caminho conforme necessário
 
 const InputVariants = cva(
   'border p-2 bg-white rounded-lg hover:shadow-xl',
@@ -24,11 +24,17 @@ const InputVariants = cva(
   },
 );
 
-const Input: React.FC<InputProps>= ({ variant = 'default' as 'default' | 'default', size = 'default' as 'default' | 'sm' | 'md' | 'flex', name, type, value, className, placeholder, onChange }: { variant?: 'default' , size?: 'default' | 'sm' | 'md' | 'flex' , type?:string, name?: string, placeholder?:string, value?: string, className?: string, onChange?: () => void }) => {
-  const variantClasses = InputVariants({
-    variant,
-    size,
-  });
+const Input: FC<InputProps> = ({
+  variant = 'default',
+  size = 'default',
+  name,
+  type = 'text',
+  value,
+  className,
+  placeholder,
+  onChange
+}) => {
+  const variantClasses = InputVariants({ variant, size });
 
   return (
     <input
@@ -38,9 +44,8 @@ const Input: React.FC<InputProps>= ({ variant = 'default' as 'default' | 'defaul
       placeholder={placeholder}
       onChange={onChange}
       className={clsx(variantClasses, className)}
-    ></input>
+    />
   );
 };
-
 
 export default Input;

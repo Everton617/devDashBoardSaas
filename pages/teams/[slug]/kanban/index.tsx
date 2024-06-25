@@ -598,13 +598,18 @@ export default function Home() {
 
     const cepFormatado = cep.replace("-", "");
 
-   if (cep.length === 8){
+    if( cepFormatado.length > 8){
+      toast.error('O cep deve ter no máximo 8 caracteres');
+    }
+
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cepFormatado}/json/`);
-      if (!response.ok) {
-        throw new Error('Erro ao buscar dados do CEP');
-      }
       const data = await response.json();
+      if (!response.ok || data.erro) {
+        toast.error('Cep Inexistente');
+        throw new Error('Erro ao buscar dados do CEP');
+      } 
+      
       setEndereco(data);
       
       setValue('rua', data.logradouro || '');
@@ -614,10 +619,9 @@ export default function Home() {
       setinputBackgroundColor('bg-gray-300');
     } catch (error) {
       setEndereco({}); 
-      toast.error('Cep Inválido');
-
+      
     }
-  }
+
 
   };
 
@@ -779,48 +783,11 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="space-y-1 pt-1 pl-8 ">
-                <label className='text-black block'>{t('Rua: ')}</label>
-                <input
-                  placeholder='rua'
-                  disabled
-                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed  w-60  ${inputBackgroundColor}`}
-                  {...register('rua')}
-                />
-                {errors.rua?.message && (
-                  <p className='text-sm text-red-400'>{errors.rua.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pl-7">
-                <label className='text-black'>{t('Número: ')}</label>
-                <input
-                  placeholder='numero'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
-                  {...register('numero')}
-                />
-                {errors.numero?.message && (
-                  <p className='text-sm text-red-400'>{errors.numero.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2 pt-2 pl-8 p-2">
-                <label className='text-black '>{t('Complemento: ')}</label>
-                <input
-                  placeholder='complemento'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
-                  {...register('complemento')}
-                />
-                {errors.complemento?.message && (
-                  <p className='text-sm text-red-400'>{errors.complemento.message}</p>
-                )}
-              </div>
-
               <div className="space-y-2 pt-2 pl-7">
                 <label className='text-black block '>{t('CEP: ')}</label>
                 <input
                   placeholder='cep'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl '
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
                   {...register('cep', { required: 'O CEP é obrigatório.' })}
                   onChange={handleCEPChange} // Adiciona o evento onChange para buscar dados do CEP
                 />
@@ -829,7 +796,20 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="space-y-2 pt-2 pl-8">
+              <div className="space-y-2 pt-2 pl-7 ">
+                <label className='text-black block'>{t('Estado: ')}</label>
+                <input
+                disabled
+                  placeholder='Estado'
+                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed w-50 ${inputBackgroundColor}`}
+                  {...register('estado')}
+                />
+                {errors.estado?.message && (
+                  <p className='text-sm text-red-400'>{errors.estado.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-0 pl-8">
                 <label className='text-black block'>{t('Cidade: ')}</label>
                 <input
                 disabled
@@ -842,11 +822,52 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="space-y-2 pt-2 pl-7 ">
+              <div className="space-y-1 pt-1 pl-8 ">
+                <label className='text-black block'>{t('Rua: ')}</label>
+                <input
+                  placeholder='rua'
+                  disabled
+                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed  w-50  ${inputBackgroundColor}`}
+                  {...register('rua')}
+                />
+                {errors.rua?.message && (
+                  <p className='text-sm text-red-400'>{errors.rua.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pl-7 pt-1">
+                <label className='text-black'>{t('Número: ')}</label>
+                <input
+                  placeholder='numero'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
+                  {...register('numero')}
+                />
+                {errors.numero?.message && (
+                  <p className='text-sm text-red-400'>{errors.numero.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-2 pl-8 p-2">
+                <label className='text-black '>{t('Complemento: ')}</label>
+                <input
+                  placeholder='complemento'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-50'
+                  {...register('complemento')}
+                />
+                {errors.complemento?.message && (
+                  <p className='text-sm text-red-400'>{errors.complemento.message}</p>
+                )}
+              </div>
+
+              
+
+              
+
+              <div className="space-y-2 pl-7 ">
                 <label className='text-black'>{t('Telefone: ')}</label>
                 <input
                   placeholder='telefone'
-                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl'
+                  className='rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl w-60'
                   {...register('telefone')}
                 />
                 {errors.telefone?.message && (
@@ -855,18 +876,7 @@ export default function Home() {
 
               </div>
 
-              <div className="space-y-2 pt-2 pl-8">
-                <label className='text-black block'>{t('Estado: ')}</label>
-                <input
-                disabled
-                  placeholder='Estado'
-                  className={`rounded-lg border p-2 bg-white rounded-lg hover:shadow-xl hover:cursor-not-allowed w-60 ${inputBackgroundColor}`}
-                  {...register('estado')}
-                />
-                {errors.estado?.message && (
-                  <p className='text-sm text-red-400'>{errors.estado.message}</p>
-                )}
-              </div>
+            
 
               <div className="space-y-2 pl-8">
                 <label className='text-black'>{t('Entregador: ')}</label>

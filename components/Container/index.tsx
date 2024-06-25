@@ -11,7 +11,7 @@ type ContainerTypes = {
   id: UniqueIdentifier;
   children,
   title: string;
-  onAddItem: () => void;
+  onAddItem: (data) => void;
   onClickEdit;
   containerIndex: number | null;
 };
@@ -33,8 +33,18 @@ const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex
     },
   });
 
+  const handleAddItem = async () => {
+    const data = { /* dados que você deseja passar para onAddItem */ };
+    try {
+      await onAddItem(data);
+      console.log('Item adicionado com sucesso');
+    } catch (error) {
+      console.error('Erro ao adicionar item:', error);
+    }
+  };
+
    const showItemModal = () => {
-    onAddItem();
+    handleAddItem();
   };
 
   const showModal = () => {
@@ -95,7 +105,7 @@ const Container = ({ id, children, title, onClickEdit, onAddItem, containerIndex
 
       {children}
 
-      <Button onClick={onAddItem} className={clsx(buttonColor)}>
+      <Button onClick={handleAddItem} className={clsx(buttonColor)}>
       {t('Adicionar Pedido')}
       </Button>
 

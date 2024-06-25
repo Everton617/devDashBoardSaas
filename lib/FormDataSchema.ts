@@ -21,7 +21,7 @@ export const FormDataSchema = z.object({
       message: "O número deve ser pelo menos 1",
     }),
   complemento: z.string().nonempty('O complemento é obrigatório.'),
-  cep: z.string().nonempty('O CEP é obrigatório.').min(8, { message: "O cep deve ter pelo menos 8 números" }).max(8, { message: "O cep deve ter no máximo 8 números" }),
+  cep: z.string().nonempty('O CEP é obrigatório.').min(8, { message: "O cep deve ter pelo menos 8 números" }),
   cidade: z.string().nonempty('A cidade é obrigatória.'),
   telefone: z.string().nonempty('O telefone é obrigatório.'),
   estado: z.string().optional(),
