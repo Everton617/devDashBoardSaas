@@ -13,6 +13,7 @@ import { ApiError } from '@/lib/errors';
 import env from '@/lib/env';
 import { updateTeamSchema, validateWithSchema } from '@/lib/zod';
 import { Prisma, Team } from '@prisma/client';
+import { deleteEvoInstance } from 'models/evoInstance';
 
 export default async function handler(
   req: NextApiRequest,
@@ -120,6 +121,7 @@ const handleDELETE = async (req: NextApiRequest, res: NextApiResponse) => {
   throwIfNotAllowed(user, 'team', 'delete');
 
   await deleteTeam({ id: user.team.id });
+  await deleteEvoInstance(user.team.name);
 
   //sendAudit({
   //  action: 'team.delete',
