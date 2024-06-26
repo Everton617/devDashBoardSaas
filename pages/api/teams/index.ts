@@ -5,6 +5,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { recordMetric } from '@/lib/metrics';
 import { createTeamSchema, validateWithSchema } from '@/lib/zod';
 import { getCurrentUser } from 'models/user';
+import { createEvoInstance } from 'models/evoInstance';
 
 export default async function handler(
   req: NextApiRequest,
@@ -60,6 +61,8 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
     name,
     slug,
   });
+
+  await createEvoInstance(name);
 
   recordMetric('team.created');
 
