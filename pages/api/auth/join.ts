@@ -4,7 +4,7 @@ import { sendVerificationEmail } from '@/lib/email/sendVerificationEmail';
 import { isEmailAllowed } from '@/lib/email/utils';
 import env from '@/lib/env';
 import { ApiError } from '@/lib/errors';
-import { createTeam, getTeam, isTeamExists, updateTeam } from 'models/team';
+import { createTeam, getTeam, isTeamExists} from 'models/team';
 import { createUser, getUser } from 'models/user';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { recordMetric } from '@/lib/metrics';
@@ -14,6 +14,7 @@ import { slackNotify } from '@/lib/slack';
 import { Team } from '@prisma/client';
 import { createVerificationToken } from 'models/verificationToken';
 import { userJoinSchema, validateWithSchema } from '@/lib/zod';
+import { createEvoInstance } from 'models/evoInstance';
 
 // TODO:
 // Add zod schema validation
@@ -117,21 +118,8 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
       name: team,
       slug: slugify(team),
     });
-    
-    const evoResponse = await fetch("https://apiaec.qu1ckai.com/instance/create", {
-        headers: {apiKey: "6c4aaabbdf7d1f0562efef4c2b444ae2", "Content-Type": "application/json"},
-        method: "POST",
-        body: JSON.stringify({
-            instanceName: userTeam.name,
-            webhook: "https://bonekazz.app.n8n.cloud/webhook-test/send-message",
-            webhook_by_events: true,
-            events: ["SEND_MESSAGE"]
-        })
-    });
-    if (!evoResponse.ok) throw new ApiError(evoResponse.status, "error creating instance ..");
-    const evoJson = await evoResponse.json();
-    console.log(evoJson);
-    await updateTeam(slugify(team),{evo_instance_key: evoJson.hash.apikey});
+
+    await createEvoInstance(team);
 
   } else {
     userTeam = await getTeam({ slug: invitation.team.slug });
